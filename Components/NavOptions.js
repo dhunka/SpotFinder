@@ -16,7 +16,19 @@ const data =[
         tittle:"Mis Estacionamientos",
         image:"https://links.papareact.com/3pn",
         screen:"MapScreen",
-    }
+    },
+    {
+        id:"12345",
+        tittle:"Iniciar Sesión",
+        image:"https://links.papareact.com/3pn",
+        screen:"LoginScreen",
+    },
+    {
+        id:"123456",
+        tittle:"Registrarse",
+        image:"https://links.papareact.com/3pn",
+        screen:"RegisterScreen",
+    },
 ]
 
 const NavOptions = () => {
