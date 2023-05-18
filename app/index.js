@@ -5,6 +5,7 @@ import HomeScreen from "../screens/HomeScreen";
 import MapScreen from "../screens/MapScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+import NewCarScreen from "../screens/NewCarScreen";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -39,6 +40,14 @@ export default function App() {
           <Stack.Screen
             name='RegisterScreen'
             component={RegisterScreen}
+            options={{
+              headerShown: false,
+            }}
+            independent={true}
+          />
+          <Stack.Screen
+            name='NewCarScreen'
+            component={NewCarScreen}
             options={{
               headerShown: false,
             }}

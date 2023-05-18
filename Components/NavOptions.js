@@ -29,6 +29,12 @@ const data =[
         image:"https://links.papareact.com/3pn",
         screen:"RegisterScreen",
     },
+    {
+      id:"1234567",
+      tittle:"Agregar Vehículo",
+      image:"https://links.papareact.com/3pn",
+      screen:"NewCarScreen",
+  },
 ]
 
 const NavOptions = () => {
