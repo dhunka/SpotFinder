@@ -10,19 +10,8 @@ const MapScreen = () => {
 
   return (
     <View>
-      <View style={tw`h-3/4`}>
+      <View style={tw`h-full w-full`}>
         <Map />
-      </View>
-      <View style={tw`h-1/4`}>
-        <Stack.Navigator>
-          <Stack.Screen
-            name='ParkingCard'
-            component={ParkingCard}
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack.Navigator>
       </View>
     </View>
   );
