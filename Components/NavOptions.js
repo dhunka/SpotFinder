@@ -14,7 +14,7 @@ const data =[
     {
         id:"1234",
         tittle:"Mis Estacionamientos",
-        image:"https://links.papareact.com/3pn",
+        image: "https://links.papareact.com/3pn",
         screen:"MapScreen",
     },
     {

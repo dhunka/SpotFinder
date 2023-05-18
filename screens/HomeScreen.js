@@ -11,9 +11,9 @@ const HomeScreen = () => {
     const dispatch=useDispatch();
 
   return (
-    <SafeAreaView style={tw`bg-white h-full`}>
+    <SafeAreaView style={tw`bg-black h-full`}>
       <View style={tw`p-5`}>
-        <Text>ola</Text>
+        <Text style={{fontSize:52, justifyContent:'center', textAlign:'center', marginVertical:10,}}>SpotFinder</Text>
         <GooglePlacesAutocomplete
             placeholder="where from?" 
             styles={{
