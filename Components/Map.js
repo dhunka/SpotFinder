@@ -1,12 +1,16 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image,TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import MapView, { Marker } from 'react-native-maps';
 import { useDispatch, useSelector } from 'react-redux';
 import tw from "tailwind-react-native-classnames";
 import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
+import { useNavigation } from 'expo-router';
+import SelectParkingScreen from '../screens/SelectParkingScreen';
+import SearchBar from './SearchBar';
 
 
 const Map = () => {
+  const navigation= useNavigation();
   const origin = useSelector(selectOrigin);
   const dispatch = useDispatch();
   const selectedMarker = useSelector(selectSelectedMarker);
@@ -14,11 +18,14 @@ const Map = () => {
   const [markersList, setMarkersList] = useState([
     {
       id: 1,
+      img:require('../assets/Estacionamiento.png'),
       latitude: -33.602514,
       longitude: -70.8763652,
       direccion: 'doce de Septiembre',
       description: '$500',
       precio: '300',
+      rating:'4',
+      spots:'5',
     },
     {
       id: 2,
@@ -52,26 +59,56 @@ const Map = () => {
     if (!isFloatingBarVisible) {
       return null;
     }
-
     return (
       <View style={styles.floatingBar}>
-        <Text style={tw`text-lg `}>{selectedMarker.title}</Text>
-        <Text style={tw`text-sm `}>{selectedMarker.description}</Text>
+            <View style={{marginLeft:7}}>
+              <Image
+                style={{
+                  
+                  borderRadius:15,
+                  width: 100,
+                    height: 100,
+                }}
+                source={selectedMarker.img } 
+                />
+             </View>
+            <View style={{
+              marginLeft:10,
+              justifyContent:'center',
+              flexDirection:'column',
+          
+          }}>
+              <View>
+                <Text>FranciscoBilbao</Text>
+              </View>
+              <View>
+                <Text>150 spots</Text>
+              </View>
+              <View>
+                <Text>0.5 km</Text>
+              </View>
+            </View>
+            
       </View>
     );
   };
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={{  marginTop:50}}>
+        <SearchBar/>
+      </View>
     <MapView
       style={{ flex: 1, position: 'relative' }}
       initialRegion={{
-        latitude: origin.location.lat,
-        longitude: origin.location.lng,
+        latitude: origin?.location?.lat || 0,
+        longitude: origin?.location?.lng || 0,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       }}
+      
     >
+      
       {markersList.map((marker) => {
         return (
           <Marker
@@ -96,15 +133,23 @@ const Map = () => {
 export default Map;
 const styles = StyleSheet.create({
   floatingBar: {
-    flexirection:'row',
-    backgroundColor:'white',
-    corderRadius: 6,
-    padding: 24,
-    marginHorizontal: 24,
-    width: 200,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 12,
+    width: 300,
+    marginBottom: 12,
+    marginLeft: 50,
+    height: 120,
+   
+    flexDirection:'row',
+    alignItems:'center'
+   
   },
-});
+  imagen:{
+    borderRadius:15
+  },
 
+});
 
 
 

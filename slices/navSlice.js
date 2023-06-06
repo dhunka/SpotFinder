@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+  const initialState = {
     origin: null,
-    destination: null,
-    travelTimeInformation: null,
+   destination: null,
+   travelTimeInformation: null,
+    selectedMarker: null,
   };
   
   export const navSlice = createSlice({

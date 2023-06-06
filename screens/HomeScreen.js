@@ -1,55 +1,47 @@
-import { StyleSheet, Text, View,SafeAreaView } from 'react-native'
-import React from 'react'
-import NavOptions from '../Components/NavOptions'
-import tw from "tailwind-react-native-classnames";
-import {GOOGLE_MAPS_APIKEY} from "@env";
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import {useDispatch} from "react-redux";
-import { setDestination,setOrigin } from '../slices/navSlice';
+  import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+  import React from 'react';
+  import tw from 'tailwind-react-native-classnames';
+  import NavOptions from '../Components/NavOptions';
+  import { useDispatch } from 'react-redux';
+  import SearchBar from '../Components/SearchBar';
 
-const HomeScreen = () => {
-    const dispatch=useDispatch();
+  const HomeScreen = () => {
+    const dispatch = useDispatch();
 
-  return (
-    <SafeAreaView style={tw`bg-black h-full`}>
-      <View style={tw`p-5`}>
-        <Text style={{fontSize:52, justifyContent:'center', textAlign:'center', marginVertical:10,}}>SpotFinder</Text>
-        <GooglePlacesAutocomplete
-            placeholder="where from?" 
-            styles={{
-                container:{
-                    flex:0,
-                },
-                textInput:{
-                    fontSize:18,
-                }
-            }}
-            onPress={(data,details = null) =>{
-             dispatch(
-                setOrigin({
-                location: details.geometry.location,
-                description: data.description
-             }))
-             dispatch(setDestination(null))
-            }}
-            fetchDetails={true}
-            returnKeyType={"search"}
-            enablePoweredByContainer={false}
-            query={{
-                key:GOOGLE_MAPS_APIKEY,
-                language:"en",
-            }}
-            nearbyPlacesAPI="GooglePlacesSearch"
-            debounce={400}
-            />
-        <NavOptions/>
-      </View>
-    </SafeAreaView>
-  )
-}
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>SpotFinder</Text>
+          <SearchBar />
+        </View>
+        <View style={styles.body}>
+          <NavOptions />
+        </View>
+      </SafeAreaView>
+    );
+  };
 
-export default HomeScreen
+  export default HomeScreen;
 
-const styles = StyleSheet.create({
-
-})
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: 'black',
+    },
+    header: {
+      flex: 1,
+      padding: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: 52,
+      textAlign: 'center',
+      marginVertical: 10,
+      color: 'white',
+    },
+    body: {
+      flex: 2,
+      padding: 10,
+    },
+  });

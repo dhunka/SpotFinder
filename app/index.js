@@ -8,7 +8,8 @@ import RegisterScreen from "../screens/RegisterScreen";
 import NewCarScreen from "../screens/NewCarScreen";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
+import SelectParkingScreen from '../screens/SelectParkingScreen';
+import SearchBarFilterScreen from "../screens/SearchBarFilterScreen";
 export default function App() {
   const Stack = createNativeStackNavigator();
   return (
@@ -52,6 +53,21 @@ export default function App() {
               headerShown: false,
             }}
             independent={true}
+          />
+           <Stack.Screen
+            name='SelectParkingScreen'
+            component={SelectParkingScreen}
+            options={{
+              headerShown: false,
+            }}
+            independent={true}
+          />
+          <Stack.Screen
+            name='SearchBarFilterScreen'
+            component={SearchBarFilterScreen}
+            options={{
+              headerShown: false,
+            }}
           />
         </Stack.Navigator>
    
