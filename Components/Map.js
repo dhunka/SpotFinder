@@ -60,7 +60,10 @@ const Map = () => {
       return null;
     }
     return (
-      <View style={styles.floatingBar}>
+      <TouchableOpacity 
+      onPress={() => navigation.navigate('SelectParkingScreen')}
+        style={styles.floatingBar}>
+ 
             <View style={{marginLeft:7}}>
               <Image
                 style={{
@@ -88,8 +91,8 @@ const Map = () => {
                 <Text>0.5 km</Text>
               </View>
             </View>
-            
-      </View>
+
+      </TouchableOpacity>
     );
   };
 
