@@ -13,6 +13,7 @@
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@reduxjs/toolkit": "^1.9.5",
+    "@stripe/stripe-react-native": "0.23.3",
     "axios": "^1.4.0",
     "expo": "^48.0.7",
     "expo-constants": "~14.2.1",
@@ -34,7 +35,7 @@
     "react-native-screens": "~3.20.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "~0.18.7",
-    "react-redux": "^8.0.5",
+    "react-redux": "^8.0.7",
     "tailwind-react-native-classnames": "^1.5.1",
     "tailwind-rn": "^4.2.0"
   },

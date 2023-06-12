@@ -10,10 +10,22 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SelectParkingScreen from '../screens/SelectParkingScreen';
 import SearchBarFilterScreen from "../screens/SearchBarFilterScreen";
+import PaymentScreen from "../screens/PaymentScreen";
+import PaymentSuccessfulScreen from "../screens/PaymentSuccessfulScreen";
+import { initializeStripe } from "../stripe";
+import { StripeProvider } from '@stripe/stripe-react-native';
+import { STRIPE_APIKEY } from '@env';
+initializeStripe();
+
 export default function App() {
   const Stack = createNativeStackNavigator();
   return (
-    <Provider store={store}>
+    < StripeProvider 
+           publishableKey={STRIPE_APIKEY}
+           urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
+           merchantIdentifier="merchant.com.{{YOUR_APP_NAME}}" // required for Apple Pay
+     >
+       <Provider store={store}>
         <Stack.Navigator>
           <Stack.Screen
             name='HomeScreen'
@@ -69,8 +81,24 @@ export default function App() {
               headerShown: false,
             }}
           />
+           <Stack.Screen
+            name='PaymentScreen'
+            component={PaymentScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name='PaymentSuccessfulScreen'
+            component={PaymentSuccessfulScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack.Navigator>
    
-    </Provider>
+           </Provider>
+    </StripeProvider>
+  
   );
 }
