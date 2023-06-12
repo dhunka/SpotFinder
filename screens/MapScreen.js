@@ -1,18 +1,20 @@
 import React from "react";
-import { Text,StyleSheet,View } from "react-native";
+import { View } from "react-native";
 import Map from "../Components/Map";
-import MapView from 'react-native-maps'
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import tw from "tailwind-react-native-classnames";
-const MapScreen = () =>{
-    return(
-        <View>
-            <View style={tw`h-2/3`}>
-             <Map/>
-            </View>
-            <View style={tw`h-1/2`}>
-                
-            </View>
-        </View>
-    )
+import ParkingCard from "../Components/ParkingCard";
+
+const MapScreen = () => {
+  const Stack = createNativeStackNavigator();
+
+  return (
+    <View>
+      <View style={tw`h-full w-full`}>
+        <Map />
+      </View>
+    </View>
+  );
 }
+
 export default MapScreen;

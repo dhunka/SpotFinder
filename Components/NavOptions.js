@@ -4,36 +4,36 @@ import tw from "tailwind-react-native-classnames";
 import { Icon } from 'react-native-elements';
 import { useNavigation } from 'expo-router';
 
-const data = [
-  {
-    id: "123",
-    title: "Buscar Estacionamiento",
-    image: "https://links.papareact.com/3pn",
-    screen: "MapScreen",
-  },
-  {
-    id: "1234",
-    title: "Mis Estacionamientos",
-    image: "https://links.papareact.com/3pn",
-    screen: "MapScreen",
-  },
-  {
-    id: "12345",
-    title: "Iniciar Sesión",
-    image: "https://links.papareact.com/3pn",
-    screen: "LoginScreen",
-  },
-  {
-    id: "123456",
-    title: "Registrarse",
-    image: "https://links.papareact.com/3pn",
-    screen: "RegisterScreen",
-  },
-  {
-    id: "1234567",
-    title: "Agregar Vehículo",
-    image: "https://links.papareact.com/3pn",
-    screen: "NewCarScreen",
+const data =[
+    {
+        id:"123",
+        tittle:"Buscar Estacionamiento",
+        image:"https://links.papareact.com/3pn",
+        screen:"MapScreen",
+    },
+    {
+        id:"1234",
+        tittle:"Mis Estacionamientos",
+        image:"https://links.papareact.com/3pn",
+        screen:"MapScreen",
+    },
+    {
+        id:"12345",
+        tittle:"Iniciar Sesión",
+        image:"https://links.papareact.com/3pn",
+        screen:"LoginScreen",
+    },
+    {
+        id:"123456",
+        tittle:"Registrarse",
+        image:"https://links.papareact.com/3pn",
+        screen:"RegisterScreen",
+    },
+    {
+      id:"1234567",
+      tittle:"Agregar Vehículo",
+      image:"https://links.papareact.com/3pn",
+      screen:"NewCarScreen",
   },
 ]
 

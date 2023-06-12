@@ -1,28 +1,158 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import MapView from 'react-native-maps'
+import { StyleSheet, Text, View, Image,TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import MapView, { Marker } from 'react-native-maps';
+import { useDispatch, useSelector } from 'react-redux';
 import tw from "tailwind-react-native-classnames";
-import { useSelector } from 'react-redux';
-import { selectOrigin } from '../slices/navSlice';
+import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
+import { useNavigation } from 'expo-router';
+import SelectParkingScreen from '../screens/SelectParkingScreen';
+import SearchBar from './SearchBar';
 
 
 const Map = () => {
-    const origin = useSelector(selectOrigin);
-  return (
-    <View style={tw`flex-1`}>
-      <MapView
-      style={tw`flex-1`}
-      initialRegion={{
-        latitude:origin.location.lat,
-        longitude:origin.location.lng,
-        latitudeDelta:0.005,
-        longitudeDelta:0.005,
-      }}
+  const navigation= useNavigation();
+  const origin = useSelector(selectOrigin);
+  const dispatch = useDispatch();
+  const selectedMarker = useSelector(selectSelectedMarker);
+  const [isFloatingBarVisible, setIsFloatingBarVisible] = useState(false);
+  const [markersList, setMarkersList] = useState([
+    {
+      id: 1,
+      img:require('../assets/Estacionamiento.png'),
+      latitude: -33.602514,
+      longitude: -70.8763652,
+      direccion: 'doce de Septiembre',
+      description: '$500',
+      precio: '300',
+      rating:'4',
+      spots:'5',
+    },
+    {
+      id: 2,
+      latitude: -33.514899,
+      longitude:  -70.718035,
+      direccion: 'Dirección 2',
+      description: 'Descripción 1',
+      precio: '4000',
+    },
+    // Resto de los marcadores
+  ]);
+
+  const handleMarkerPress = (marker) => {
+    dispatch(setSelectedMarker(marker));
+    setIsFloatingBarVisible(true);
+  };
+
+  const MycustomMarkerView = () => {
+    return (
+      <Image
+        style={{
+          width: 40,
+          height: 40,
+        }}
+        source={require('../assets/park_parking_icon.png')}
       />
-    </View>
-  )
-}
+    );
+  };
 
-export default Map
+  const renderFloatingBar = () => {
+    if (!isFloatingBarVisible) {
+      return null;
+    }
+    return (
+      <TouchableOpacity 
+      onPress={() => navigation.navigate('SelectParkingScreen')}
+        style={styles.floatingBar}>
+ 
+            <View style={{marginLeft:7}}>
+              <Image
+                style={{
+                  
+                  borderRadius:15,
+                  width: 100,
+                    height: 100,
+                }}
+                source={selectedMarker.img } 
+                />
+             </View>
+            <View style={{
+              marginLeft:10,
+              justifyContent:'center',
+              flexDirection:'column',
+          
+          }}>
+              <View>
+                <Text>FranciscoBilbao</Text>
+              </View>
+              <View>
+                <Text>150 spots</Text>
+              </View>
+              <View>
+                <Text>0.5 km</Text>
+              </View>
+            </View>
 
-const styles = StyleSheet.create({})
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={{  marginTop:50}}>
+        <SearchBar/>
+      </View>
+    <MapView
+      style={{ flex: 1, position: 'relative' }}
+      initialRegion={{
+        latitude: origin?.location?.lat || 0,
+        longitude: origin?.location?.lng || 0,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      }}
+      
+    >
+      
+      {markersList.map((marker) => {
+        return (
+          <Marker
+            key={marker.id}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            title={marker.direccion}
+            description={marker.description}
+            onPress={() => handleMarkerPress(marker)}
+          >
+            <MycustomMarkerView />
+          </Marker>
+        );
+      })}
+    </MapView>
+    <View style={{ position: 'absolute', bottom: 0 }}>
+        {renderFloatingBar()}
+      </View>
+  </View>
+  );
+};
+
+export default Map;
+const styles = StyleSheet.create({
+  floatingBar: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 12,
+    width: 300,
+    marginBottom: 12,
+    marginLeft: 50,
+    height: 120,
+   
+    flexDirection:'row',
+    alignItems:'center'
+   
+  },
+  imagen:{
+    borderRadius:15
+  },
+
+});
+
+
+
