@@ -28,7 +28,7 @@ const Map = () => {
       spots:'5',
     },
     {
-      id: 1,
+      id: 2,
       img:require('../assets/Estacionamiento.png'),
       latitude: -33.545666, 
       longitude: -70.654401,
@@ -39,11 +39,11 @@ const Map = () => {
       spots:'5',
     },
     {
-      id: 1,
+      id: 3,
       img:require('../assets/Estacionamiento.png'),
       latitude: -33.493553,
       longitude: -70.682161,
-      direccion: 'casa diegomon',
+      direccion: 'casa daigo',
       description: '$500',
       precio: '300',
       rating:'4',

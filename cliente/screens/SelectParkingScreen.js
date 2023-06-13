@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Alert } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -17,7 +16,7 @@ const SelectParkingScreen = ({ navigation }) => {
   const selectedPaymentMethod = useSelector(selectSelectedPaymentMethod);
   const selectedParkingTime = useSelector(selectSelectedParkingTime);
   const [loading, setLoading] = useState(false);
-  const { presentPaymentSheet } = useStripe();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const handlePaymentMethodSelect = (method) => {
     dispatch(setSelectedPaymentMethod(method));
@@ -27,23 +26,112 @@ const SelectParkingScreen = ({ navigation }) => {
     dispatch(setSelectedParkingTime(time));
   };
 
+  const calculatePrice = () => {
+    switch (selectedParkingTime) {
+      case '30':
+        return 5;
+      case '60':
+        return 10;
+      case '120':
+        return 15;
+      default:
+        return 0;
+    }
+  };
+  
   const handleReservation = async () => {
+    console.log("Reservar");
+  
+    // Check if the user has selected a payment method
     if (selectedPaymentMethod === 'Stripe') {
+  
+      // Check if the user has selected a parking time
       if (selectedParkingTime) {
-        const { error } = await presentPaymentSheet();
-
+  
+        // Calculate the price of the parking
+        const price = calculatePrice();
+  
+        // Present the payment sheet
+        const { error } = await presentPaymentSheet({
+          amount: price,
+        });
+  
+        // Handle errors
         if (error) {
           Alert.alert(`Error code: ${error.code}`, error.message);
         } else {
-          // El formulario de pago se ha desplegado correctamente
+          console.log("Formulario de pago desplegado correctamente");
+          const { error: presentError } = await presentPaymentSheet();
+          if (presentError) {
+            Alert.alert(`Error code: ${presentError.code}`, presentError.message);
+          }
         }
+  
       } else {
-        // Mostrar un mensaje de error indicando que se debe seleccionar un tiempo de estacionamiento
+        Alert.alert("Error", "Selecciona un tiempo de estacionamiento");
       }
+  
     } else {
-      // Lógica para otras formas de pago
+      // Logic for other payment methods
     }
   };
+  const fetchPaymentSheetParams = async () => {
+    const price = calculatePrice(selectedParkingTime);
+  
+    const response = await fetch(`http://192.168.1.8:8080/payment-sheet`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        price: price,
+      }),
+    });
+  
+    const {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+      publishableKey,
+    } = await response.json();
+  
+    return {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+      publishableKey,
+    };
+  };
+
+  const initializePaymentSheet = async () => {
+    const {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+      publishableKey,
+    } = await fetchPaymentSheetParams();
+  
+    const { error } = await initPaymentSheet({
+      merchantDisplayName: "Example, Inc.",
+      customerId: customer,
+      customerEphemeralKeySecret: ephemeralKey,
+      paymentIntentClientSecret: paymentIntent,
+      allowsDelayedPaymentMethods: true,
+      defaultBillingDetails: {
+        name: 'Jane Doe',
+      },
+      manualInitialization: true, // Agregamos esta opción para la inicialización manual del PaymentSheet
+    });
+  
+    if (!error) {
+      setLoading(true);
+    }
+  };
+  
+
+  useEffect(() => {
+    initializePaymentSheet();
+  }, [selectedParkingTime]);
 
   return (
     <View style={styles.container}>
@@ -60,159 +148,126 @@ const SelectParkingScreen = ({ navigation }) => {
           <View style={styles.botonesCalificacion}>
             <View style={styles.botonCalifica}>
               <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '30min' && styles.selectedParkingTime]}
-                onPress={() => handleParkingTimeSelect('30min')}
+                style={[styles.botonContent, selectedParkingTime === '30'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handleParkingTimeSelect('30')}
               >
-                <View>
-                  <Text>30 min</Text>
-                </View>
-                <View>
-                  <Text>$5</Text>
-                </View>
+                <Text style={styles.textBotonCalifica}>30 min</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.botonCalifica}>
               <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '1hr' && styles.selectedParkingTime]}
-                onPress={() => handleParkingTimeSelect('1hr')}
+                style={[styles.botonContent, selectedParkingTime === '60'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handleParkingTimeSelect('60')}
               >
-                <View>
-                  <Text>1 hora</Text>
-                </View>
-                <View>
-                  <Text>$10</Text>
-                </View>
+                <Text style={styles.textBotonCalifica}>60 min</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.botonCalifica}>
               <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '2hr' && styles.selectedParkingTime]}
-                onPress={() => handleParkingTimeSelect('2hr')}
+                style={[styles.botonContent, selectedParkingTime === '120'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handleParkingTimeSelect('120')}
               >
-                <View>
-                  <Text>2 horas</Text>
-                </View>
-                <View>
-                  <Text>$8</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === 'Other' && styles.selectedParkingTime]}
-                onPress={() => handleParkingTimeSelect('Other')}
-              >
-                <View>
-                  <Text>Otro</Text>
-                </View>
-                <View>
-                  <Text>Precio</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View>
-            <Text style={styles.text}>Pagos</Text>
-            <View>
-              <TouchableOpacity
-                style={[styles.paymentButton, selectedPaymentMethod === 'Stripe' && styles.selectedPaymentMethod]}
-                onPress={() => handlePaymentMethodSelect('Stripe')}
-              >
-                <Text style={styles.paymentButtonText}>Stripe</Text>
+                <Text style={styles.textBotonCalifica}>120 min</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
         <View>
-          <Text style={styles.text}>Comentarios</Text>
+          <Text style={styles.text}>Forma de Pago</Text>
+          <View style={styles.botonesCalificacion}>
+            <View style={styles.botonCalifica}>
+              <TouchableOpacity
+                style={[styles.botonContent, selectedPaymentMethod === 'Stripe'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handlePaymentMethodSelect('Stripe')}
+              >
+                <Text style={styles.textBotonCalifica}>Stripe</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.botonCalifica}>
+              <TouchableOpacity
+                style={[styles.botonContent, selectedPaymentMethod === 'PayPal'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handlePaymentMethodSelect('PayPal')}
+              >
+                <Text style={styles.textBotonCalifica}>PayPal</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.botonCalifica}>
+              <TouchableOpacity
+                style={[styles.botonContent, selectedPaymentMethod === 'Otro'
+                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
+                onPress={() => handlePaymentMethodSelect('Otro')}
+              >
+                <Text style={styles.textBotonCalifica}>Otro</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        <TouchableOpacity style={styles.botonBottom} onPress={handleReservation}>
-          <Text style={styles.text}>Reservar</Text>
-        </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        style={styles.reservarButton}
+        onPress={handleReservation}
+      >
+        <Text style={styles.textButton}>Reservar</Text>
+      </TouchableOpacity>
     </View>
   );
-}
+};
 
-export default SelectParkingScreen;
-const windowHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 20,
   },
   image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: 200,
+    height: 200,
   },
   categorias: {
-    flex: 2,
-    flexDirection: 'column',
-    backgroundColor: 'black',
-    height: windowHeight * 2 / 3,
+    alignItems: 'center',
   },
   text: {
-    fontWeight: 'bold',
-    fontSize: 17
-  },
-  botonCalifica: {
-    width: 60,
-    height: 40,
-    backgroundColor: 'white',
-    borderColor: '#fb0e0e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-    borderWidth: 2
-  },
-  botonContent: {
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    flexDirection: 'column'
+    fontSize: 20,
+    marginBottom: 10,
   },
   botonesCalificacion: {
-    marginTop: 10,
-    marginBottom: 10,
     flexDirection: 'row',
-    justifyContent: 'space-evenly'
+    marginBottom: 20,
   },
-  botonBottom: {
-    width: 80,
-    height: 40,
-    backgroundColor: 'white',
-    borderColor: '#fb0e0e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-    borderWidth: 2,
-    position: 'absolute',
-    bottom: 20,
-    left: 150
-  },
-  paymentButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderColor: '#fb0e0e',
-    borderRadius: 5,
-    borderWidth: 2,
+  botonCalifica: {
+    marginHorizontal: 10,
     padding: 10,
-    marginVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#000',
   },
-  paymentButtonText: {
-    fontWeight: 'bold',
+  botonCalificaSeleccionado: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+  },
+  botonContent: {
+    alignItems: 'center',
+  },
+  textBotonCalifica: {
     fontSize: 16,
   },
-  selectedPaymentMethod: {
-    backgroundColor: '#fb0e0e',
+  reservarButton: {
+    backgroundColor: '#000',
+    padding: 10,
+    borderRadius: 10,
   },
-  selectedParkingTime: {
-    backgroundColor: '#fb0e0e',
+  textButton: {
+    fontSize: 20,
+    color: '#fff',
   },
 });
+
+export default SelectParkingScreen;

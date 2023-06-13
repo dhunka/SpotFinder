@@ -1,9 +1,15 @@
+
+
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const express = require("express")
 const app = express();
 const admin = require("firebase-admin");
 const credentials = require("./key.json");
 const stripe = require('stripe')('sk_test_51N75MIGD6rvnwVkTFtBSmdDduY8PZwRC88wo90jCkiWVx6RljIXff6Ezjv5Oym2LTX6dUeLLXYgxD5w6cQ9RZt0m00TteEuftQ');
-
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 admin.initializeApp({
     credential: admin.credential.cert(credentials)
 });
@@ -14,32 +20,28 @@ app.use(express.urlencoded({extended: true}));
 
 const db = admin.firestore();
 
+
+
 app.post('/payment-sheet', async (req, res) => {
-  try {
-    const customer = await stripe.customers.create();
-    const ephemeralKey = await stripe.ephemeralKeys.create(
-      { customer: customer.id },
-      { apiVersion: '2022-11-15' }
-    );
+  // Use an existing Customer ID if this is a returning customer.
+  const customer = await stripe.customers.create();
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    {customer: customer.id},
+    {apiVersion: '2022-11-15'}
+  );
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: 1099,
+    currency: 'eur',
+    customer: customer.id,
+    payment_method_types: ['bancontact', 'card', 'ideal', 'klarna', 'sepa_debit', 'sofort'],
+  });
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1099, // Monto en centavos o céntimos de euro
-      currency: 'eur',
-      customer: customer.id,
-      payment_method_types: ['card'],
-    });
-
-    const paymentSheetData = {
-      paymentIntent: paymentIntent.client_secret,
-      customer: ephemeralKey.secret,
-      publishableKey: 'pk_test_51N75MIGD6rvnwVkTDi2rwCqgzXzroP7Osg6FjbznpuZyFqCTKrhtYpDYjuXvCm1AqhFSFfuFpo5CunviTZnyH52K00HWd3jwyP',
-    };
-
-    res.json(paymentSheetData);
-  } catch (error) {
-    console.error('Error creating payment sheet:', error);
-    res.status(500).send('Error creating payment sheet');
-  }
+  res.json({
+    paymentIntent: paymentIntent.client_secret,
+    ephemeralKey: ephemeralKey.secret,
+    customer: customer.id,
+    publishableKey: 'pk_test_51N75MIGD6rvnwVkTDi2rwCqgzXzroP7Osg6FjbznpuZyFqCTKrhtYpDYjuXvCm1AqhFSFfuFpo5CunviTZnyH52K00HWd3jwyP'
+  });
 });
 
 // Endpoint para manejar el resultado de la hoja de pago
@@ -61,6 +63,27 @@ app.post('/payment-sheet-result', async (req, res) => {
     res.status(500).send('Error handling payment sheet result');
   }
 });
+
+app.post('/reserve-parking', async (req, res) => {
+  try {
+    const { parkingTime, paymentMethodType } = req.body;
+    // Procesa la reserva de estacionamiento aquí utilizando los datos recibidos
+
+    // Ejemplo: Guardar la reserva en la base de datos
+    const reservation = {
+      parkingTime,
+      paymentMethodType,
+      // Otros campos relevantes
+    };
+    const response = await db.collection('reservations').add(reservation);
+
+    res.send(response);
+  } catch (error) {
+    console.error('Error reserving parking:', error);
+    res.status(500).send('Error reserving parking');
+  }
+});
+
 
 app.post('/create', async (req, res) => {
   try {
