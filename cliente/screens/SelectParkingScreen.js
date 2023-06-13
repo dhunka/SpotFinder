@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, Dimensions } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import PaymentScreen from '../screens/PaymentScreen';
-import { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -17,7 +16,9 @@ const SelectParkingScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const selectedPaymentMethod = useSelector(selectSelectedPaymentMethod);
   const selectedParkingTime = useSelector(selectSelectedParkingTime);
-  
+  const [loading, setLoading] = useState(false);
+  const { presentPaymentSheet } = useStripe();
+
   const handlePaymentMethodSelect = (method) => {
     dispatch(setSelectedPaymentMethod(method));
   };
@@ -26,14 +27,16 @@ const SelectParkingScreen = ({ navigation }) => {
     dispatch(setSelectedParkingTime(time));
   };
 
-
-  const handleReservation = () => {
+  const handleReservation = async () => {
     if (selectedPaymentMethod === 'Stripe') {
       if (selectedParkingTime) {
-        navigation.navigate('PaymentScreen', {
-          parkingTime: selectedParkingTime,
-          paymentMethod: selectedPaymentMethod,
-        });
+        const { error } = await presentPaymentSheet();
+
+        if (error) {
+          Alert.alert(`Error code: ${error.code}`, error.message);
+        } else {
+          // El formulario de pago se ha desplegado correctamente
+        }
       } else {
         // Mostrar un mensaje de error indicando que se debe seleccionar un tiempo de estacionamiento
       }

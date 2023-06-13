@@ -1,4 +1,5 @@
 import React from "react";
+import "expo-router/entry";
 import { Provider } from "react-redux";
 import { store } from "../store";
 import HomeScreen from "../screens/HomeScreen";

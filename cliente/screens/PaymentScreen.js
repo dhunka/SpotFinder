@@ -1,133 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { CardField, StripeProvider, useStripe } from '@stripe/stripe-react-native';
-import { STRIPE_APIKEY } from '@env';
+import React, { useEffect, useState } from 'react';
+import { Alert, Button, StyleSheet, View } from 'react-native';
+import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-const PaymentScreen = () => {
-  const [card, setCard] = useState(null);
-  const [costo, setCosto] = useState(0);
-  const navigation = useNavigation();
-  const { confirmPayment } = useStripe();
+const Checkout = () => {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [loading, setLoading] = useState(false);
+  const initializePaymentSheet = async () => {
+    const response = await fetch('http://192.168.1.8:8080/payment-sheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  const parkingTime = useSelector(state => state.nav.selectedParkingTime);
+    const { paymentIntent, customer, publishableKey } = await response.json();
 
-  useEffect(() => {
-    let nuevoCosto = 0;
-    switch (parkingTime) {
-      case '30min':
-        nuevoCosto = 5;
-        break;
-      case '1hr':
-        nuevoCosto = 10;
-        break;
-      case '2hr':
-        nuevoCosto = 8;
-        break;
-      default:
-        console.log('Error: Categoría de tiempo no válida');
-        break;
-    }
-    setCosto(nuevoCosto);
-  }, [parkingTime]);
+    const { error } = await initPaymentSheet({
+      paymentIntentClientSecret: paymentIntent,
+      customerEphemeralKeySecret: customer,
+      merchantDisplayName: 'Example, Inc.',
+      allowsDelayedPaymentMethods: true,
+      defaultBillingDetails: {
+        name: 'Jane Doe',
+      },
+    });
 
-  const handlePayment = async () => {
-    try {
-      const { paymentMethod, error } = await confirmPayment({
-        type: 'Card',
-        card: {
-          number: card.cardNumber,
-          cvc: card.cvc,
-          expMonth: card.expirationMonth,
-          expYear: card.expirationYear,
-        },
-      });
-      
-      
-
-      if (error) {
-        console.log('Error processing payment:', error.message);
-      } else {
-        console.log('Payment successful:', paymentMethod);
-        // Aquí puedes realizar las acciones necesarias después de que el pago se haya procesado correctamente
-        // Por ejemplo, puedes llamar a una API de backend para guardar la transacción en tu base de datos
-        // y actualizar el estado de la reserva del estacionamiento.
-
-        // Aquí hay un ejemplo de cómo podrías navegar a otra pantalla después del pago exitoso:
-        navigation.navigate('PaymentSuccessfulScreen');
-      }
-    } catch (e) {
-      console.log('Error processing payment:', e.message);
+    if (!error) {
+      setLoading(true);
     }
   };
 
-  return (
-    <StripeProvider publishableKey={STRIPE_APIKEY}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Realizar Pago</Text>
-        <Text style={styles.amount}>Monto a Pagar: ${costo}</Text>
-        <View style={styles.cardContainer}>
-          <CardField
-            postalCodeEnabled={true}
-            placeholder={{
-              number: '4242 4242 4242 4242',
-            }}
-            cardStyle={{
-              backgroundColor: '#FFFFFF',
-              textColor: '#000000',
-            }}
-            style={styles.cardField}
-            onCardChange={(cardDetails) => {
-              setCard(cardDetails);
-            }}
-            onFocus={(focusedField) => {
-              console.log('focusField', focusedField);
-            }}
-          />
-        </View>
-        <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
-          <Text style={styles.payButtonText}>Pagar</Text>
-        </TouchableOpacity>
-      </View>
-    </StripeProvider>
-  );
-}
+  const openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet();
 
-export default PaymentScreen;
+    if (error) {
+      Alert.alert(`Error code: ${error.code}`, error.message);
+    } else {
+      Alert.alert('Success', 'Your order is confirmed!');
+    }
+  };
+
+  useEffect(() => {
+    initializePaymentSheet();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Button
+        title="Checkout"
+        onPress={openPaymentSheet}
+        disabled={!loading}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  amount: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  cardContainer: {
-    width: '80%',
-    marginBottom: 20,
-  },
-  cardField: {
-    height: 50,
-  },
-  payButton: {
-    backgroundColor: '#007BFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-  },
-  payButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
+
+const PaymentScreen = () => { 
+  const Stack = createNativeStackNavigator();
+
+  return (
+    <StripeProvider
+      publishableKey="pk_test_51N75MIGD6rvnwVkTDi2rwCqgzXzroP7Osg6FjbznpuZyFqCTKrhtYpDYjuXvCm1AqhFSFfuFpo5CunviTZnyH52K00HWd3jwyP"
+      urlScheme="your-url-scheme"
+      merchantIdentifier="merchant.com.{{YOUR_APP_NAME}}"
+    >
+      <Checkout/>
+    </StripeProvider>
+  );
+};
+
+export default PaymentScreen;
