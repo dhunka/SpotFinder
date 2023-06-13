@@ -24,12 +24,6 @@ const data =[
       screen:"FormScreen",
     },
     {
-        id:"12345",
-        title:"Iniciar Sesión",
-        image:"https://links.papareact.com/3pn",
-        screen:"LoginScreen",
-    },
-    {
         id:"123456",
         title:"Registrarse",
         image:"https://links.papareact.com/3pn",

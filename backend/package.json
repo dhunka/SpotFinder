@@ -13,7 +13,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "firebase": "^9.22.2",
-    "firebase-admin": "^10.0.2",
+    "firebase-admin": "^10.3.0",
     "nodemon": "2.0.15",
     "stripe": "^12.9.0"
   }

@@ -2,12 +2,14 @@ import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 're
 import React, { useState } from 'react';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
+  const navigation = useNavigation();
 
   const signIn = async () => {
     setLoading(true);
@@ -15,6 +17,7 @@ const Login = () => {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
       alert('Listo');
+      navigation.navigate('HomeScreen');
     } catch (error: any) {
       console.log(error);
       alert('Hubo un error en el registro' + error.message);
