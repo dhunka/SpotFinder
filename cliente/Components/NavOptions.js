@@ -7,31 +7,37 @@ import { useNavigation } from 'expo-router';
 const data =[
     {
         id:"123",
-        tittle:"Buscar Estacionamiento",
+        title:"Buscar Estacionamiento",
         image:"https://links.papareact.com/3pn",
         screen:"MapScreen",
     },
     {
         id:"1234",
-        tittle:"Mis Estacionamientos",
+        title:"Mis Estacionamientos",
         image:"https://links.papareact.com/3pn",
         screen:"MapScreen",
     },
     {
+      id:"123455",
+      title:"Agregar Estacionamiento",
+      image:"https://links.papareact.com/3pn",
+      screen:"FormScreen",
+    },
+    {
         id:"12345",
-        tittle:"Iniciar Sesión",
+        title:"Iniciar Sesión",
         image:"https://links.papareact.com/3pn",
         screen:"LoginScreen",
     },
     {
         id:"123456",
-        tittle:"Registrarse",
+        title:"Registrarse",
         image:"https://links.papareact.com/3pn",
         screen:"RegisterScreen",
     },
     {
       id:"1234567",
-      tittle:"Agregar Vehículo",
+      title:"Agregar Vehículo",
       image:"https://links.papareact.com/3pn",
       screen:"NewCarScreen",
   },
@@ -48,7 +54,7 @@ const NavOptions = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate(item.screen)}
-            style={tw`p-2 pl-6 pb-8 pt-4 bg-gray-200 m-2 flex-1`}
+            style={tw`p-2 pl-6 pb-8 pt-4 bg-gray-200 m-2 w-44`}
           >
             <View>
               <Image
