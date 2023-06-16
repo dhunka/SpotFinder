@@ -23,17 +23,20 @@ const db = admin.firestore();
 
 
 app.post('/payment-sheet', async (req, res) => {
-  // Use an existing Customer ID if this is a returning customer.
+  const { price } = req.body;
+  if (typeof price !== 'number' || price < 1) {
+    return res.status(400).json({ error: 'Invalid price' });
+  }
   const customer = await stripe.customers.create();
   const ephemeralKey = await stripe.ephemeralKeys.create(
-    {customer: customer.id},
-    {apiVersion: '2022-11-15'}
+    { customer: customer.id },
+    { apiVersion: '2022-11-15' }
   );
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1099,
-    currency: 'eur',
+    amount: Math.round(price * 100),
+    currency: 'usd',
     customer: customer.id,
-    payment_method_types: ['bancontact', 'card', 'ideal', 'klarna', 'sepa_debit', 'sofort'],
+    payment_method_types: ['card'],
   });
 
   res.json({
@@ -44,6 +47,7 @@ app.post('/payment-sheet', async (req, res) => {
   });
 });
 
+
 // Endpoint para manejar el resultado de la hoja de pago
 app.post('/payment-sheet-result', async (req, res) => {
   try {
@@ -51,7 +55,18 @@ app.post('/payment-sheet-result', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
     if (success) {
-      // Guardar la información del pago en la base de datos o realizar acciones necesarias
+      // Guardar la información del pago en la base de datos de Firebase
+      const ref = db.ref('pagos');
+      const nuevoPagoRef = ref.push();
+      
+      const datosPago = {
+        paymentIntentId: paymentIntentId,
+        monto: paymentIntent.amount,
+        // Agrega más propiedades según los datos que desees guardar en la base de datos
+      };
+      
+      nuevoPagoRef.set(datosPago);
+
       res.status(200).send('Payment succeeded');
     } else {
       // Cancelar el pago o realizar otras acciones según sea necesario

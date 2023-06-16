@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useNavigation } from '@react-navigation/native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -10,7 +11,8 @@ import {
   setSelectedParkingTime,
 } from '../slices/navSlice';
 
-const SelectParkingScreen = ({ navigation }) => {
+const SelectParkingScreen = ({  }) => {
+  const navigation = useNavigation();
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
   const selectedPaymentMethod = useSelector(selectSelectedPaymentMethod);
@@ -26,12 +28,12 @@ const SelectParkingScreen = ({ navigation }) => {
     dispatch(setSelectedParkingTime(time));
   };
 
-  const calculatePrice = () => {
-    switch (selectedParkingTime) {
+  const calculatePrice = (parkingTime) => {
+    switch (parkingTime) {
       case '30':
         return 5;
       case '60':
-        return 10;
+        return 8;
       case '120':
         return 15;
       default:
@@ -49,22 +51,20 @@ const SelectParkingScreen = ({ navigation }) => {
       if (selectedParkingTime) {
   
         // Calculate the price of the parking
-        const price = calculatePrice();
+        const price = calculatePrice(selectedParkingTime);
   
         // Present the payment sheet
         const { error } = await presentPaymentSheet({
           amount: price,
         });
+
+        if (!error) {
+          navigation.navigate('PaymentSuccessfulScreen',{selectedPaymentMethod,selectedParkingTime,price});
+        }
   
         // Handle errors
         if (error) {
           Alert.alert(`Error code: ${error.code}`, error.message);
-        } else {
-          console.log("Formulario de pago desplegado correctamente");
-          const { error: presentError } = await presentPaymentSheet();
-          if (presentError) {
-            Alert.alert(`Error code: ${presentError.code}`, presentError.message);
-          }
         }
   
       } else {
@@ -75,10 +75,11 @@ const SelectParkingScreen = ({ navigation }) => {
       // Logic for other payment methods
     }
   };
+
   const fetchPaymentSheetParams = async () => {
     const price = calculatePrice(selectedParkingTime);
-  
-    const response = await fetch(`http://192.168.1.8:8080/payment-sheet`, {
+    console.log(price);
+    const response = await fetch(`http://192.168.1.7:8080/payment-sheet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,14 +121,13 @@ const SelectParkingScreen = ({ navigation }) => {
       defaultBillingDetails: {
         name: 'Jane Doe',
       },
-      manualInitialization: true, // Agregamos esta opción para la inicialización manual del PaymentSheet
+      manualInitialization: true,
     });
   
     if (!error) {
       setLoading(true);
     }
   };
-  
 
   useEffect(() => {
     initializePaymentSheet();
@@ -138,7 +138,7 @@ const SelectParkingScreen = ({ navigation }) => {
       <View style={styles.imageContainer}>
         <Image style={styles.image} source={require('../assets/Estacionamiento.png')} />
       </View>
-
+  
       <View style={styles.categorias}>
         <View>
           <Text style={styles.text}>Avenida Francisco Bilbao 511</Text>
@@ -146,76 +146,59 @@ const SelectParkingScreen = ({ navigation }) => {
         <View>
           <Text style={styles.text}>Tiempo</Text>
           <View style={styles.botonesCalificacion}>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '30'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handleParkingTimeSelect('30')}
-              >
-                <Text style={styles.textBotonCalifica}>30 min</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '60'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handleParkingTimeSelect('60')}
-              >
-                <Text style={styles.textBotonCalifica}>60 min</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedParkingTime === '120'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handleParkingTimeSelect('120')}
-              >
-                <Text style={styles.textBotonCalifica}>120 min</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedParkingTime === '30' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handleParkingTimeSelect('30')}
+            >
+              <Text style={styles.textBotonCalificaTop}>30 min</Text>
+              <Text style={styles.textBotonCalificaBottom}>$5.00</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedParkingTime === '60' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handleParkingTimeSelect('60')}
+            >
+              <Text style={styles.textBotonCalificaTop}>60 min</Text>
+              <Text style={styles.textBotonCalificaBottom}>$8.00</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedParkingTime === '120' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handleParkingTimeSelect('120')}
+            >
+              <Text style={styles.textBotonCalificaTop}>120 min</Text>
+              <Text style={styles.textBotonCalificaBottom}>$12.00</Text>
+            </TouchableOpacity>
           </View>
         </View>
         <View>
           <Text style={styles.text}>Forma de Pago</Text>
           <View style={styles.botonesCalificacion}>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedPaymentMethod === 'Stripe'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handlePaymentMethodSelect('Stripe')}
-              >
-                <Text style={styles.textBotonCalifica}>Stripe</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedPaymentMethod === 'PayPal'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handlePaymentMethodSelect('PayPal')}
-              >
-                <Text style={styles.textBotonCalifica}>PayPal</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.botonCalifica}>
-              <TouchableOpacity
-                style={[styles.botonContent, selectedPaymentMethod === 'Otro'
-                ? styles.botonCalificaSeleccionado : styles.botonCalifica]}
-                onPress={() => handlePaymentMethodSelect('Otro')}
-              >
-                <Text style={styles.textBotonCalifica}>Otro</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedPaymentMethod === 'Stripe' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handlePaymentMethodSelect('Stripe')}
+            >
+              <Text style={styles.textBotonCalifica}>Stripe</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedPaymentMethod === 'PayPal' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handlePaymentMethodSelect('PayPal')}
+            >
+              <Text style={styles.textBotonCalifica}>PayPal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.botonCalifica, selectedPaymentMethod === 'Otro' ? styles.botonCalificaSeleccionado : null]}
+              onPress={() => handlePaymentMethodSelect('Otro')}
+            >
+              <Text style={styles.textBotonCalifica}>Otro</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-      <TouchableOpacity
-        style={styles.reservarButton}
-        onPress={handleReservation}
-      >
+      <TouchableOpacity style={styles.reservarButton} onPress={handleReservation}>
         <Text style={styles.textButton}>Reservar</Text>
       </TouchableOpacity>
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -223,6 +206,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#171a21',
   },
   imageContainer: {
     marginBottom: 20,
@@ -237,6 +221,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     marginBottom: 10,
+    color: '#c7d5e0',
   },
   botonesCalificacion: {
     flexDirection: 'row',
@@ -247,26 +232,34 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: '#c7d5e0',
+    alignItems: 'center',
   },
   botonCalificaSeleccionado: {
-    backgroundColor: '#000',
-    borderColor: '#000',
+    backgroundColor: '#66c0f4',
+    borderColor: '#66c0f4',
   },
-  botonContent: {
-    alignItems: 'center',
+  textBotonCalificaTop: {
+    fontSize: 16,
+    color: '#c7d5e0',
+  },
+  textBotonCalificaBottom: {
+    fontSize: 14,
+    color: '#c7d5e0',
+    marginTop: 5,
   },
   textBotonCalifica: {
     fontSize: 16,
+    color: '#c7d5e0',
   },
   reservarButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#66c0f4',
     padding: 10,
     borderRadius: 10,
   },
   textButton: {
     fontSize: 20,
-    color: '#fff',
+    color: '#c7d5e0',
   },
 });
 

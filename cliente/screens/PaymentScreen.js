@@ -7,7 +7,7 @@ const Checkout = () => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
   const initializePaymentSheet = async () => {
-    const response = await fetch('http://192.168.1.8:8080/payment-sheet', {
+    const response = await fetch('http://192.168.1.7:8080/payment-sheet', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
