@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "firebase": "^9.22.2",
+    "firebase-admin": "^11.9.0"
+  }
+}

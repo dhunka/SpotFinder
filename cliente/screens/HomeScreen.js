@@ -4,6 +4,7 @@
   import NavOptions from '../Components/NavOptions';
   import { useDispatch } from 'react-redux';
   import SearchBar from '../Components/SearchBar';
+  
 
   const HomeScreen = () => {
     const dispatch = useDispatch();

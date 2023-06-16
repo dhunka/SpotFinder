@@ -16,6 +16,7 @@ import PaymentSuccessfulScreen from "../screens/PaymentSuccessfulScreen";
 import { initializeStripe } from "../stripe";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { STRIPE_APIKEY } from '@env';
+import FormScreen from "../screens/FormScreen";
 initializeStripe();
 
 export default function App() {
@@ -29,6 +30,14 @@ export default function App() {
        <Provider store={store}>
         <Stack.Navigator>
           <Stack.Screen
+            name='LoginScreen'
+            component={LoginScreen}
+            options={{
+              headerShown: false,
+            }}
+            independent={true}
+          />
+          <Stack.Screen
             name='HomeScreen'
             component={HomeScreen}
             options={{
@@ -38,14 +47,6 @@ export default function App() {
           <Stack.Screen
             name='MapScreen'
             component={MapScreen}
-            options={{
-              headerShown: false,
-            }}
-            independent={true}
-          />
-          <Stack.Screen
-            name='LoginScreen'
-            component={LoginScreen}
             options={{
               headerShown: false,
             }}
@@ -92,6 +93,13 @@ export default function App() {
           <Stack.Screen
             name='PaymentSuccessfulScreen'
             component={PaymentSuccessfulScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name='FormScreen'
+            component={FormScreen}
             options={{
               headerShown: false,
             }}
