@@ -1,61 +1,75 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
-import axios from 'axios';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+import { useState } from 'react';
 
-const RegisterScreen = () => {
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../Components/config';
+
+export default function App() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [numero, setNumero] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleRegister = async () => {
-    try {
-      const userData = {
-        nombre,
-        apellido,
-        numero,
-        email,
-        password
-      };
-      const response = await axios.post('http://localhost:8080/create', userData);
-      console.log('Registro exitoso:', response.data);
-      // Realizar acciones adicionales después del registro exitoso
-    } catch (error) {
-      console.error('Error en el registro:', error);
-      // Manejar el error de registro
+  function create() {
+    if (!nombre || !apellido || !numero || !email || !password) {
+      alert('Ingrese los datos correctamente');
+      return;
     }
-  };
+
+    addDoc(collection(db, 'usuario'), {
+      nombre: nombre,
+      apellido: apellido,
+      email: email,
+      numero: numero,
+      password: password,
+    })
+      .then(() => {
+        console.log('datos subidos');
+        alert('Datos registrados con éxito!!');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrarse</Text>
       <Text style={styles.subtitle}>Crear una cuenta nueva</Text>
 
+
+      
+
       <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        onChangeText={(text) => setNombre(text)}
         value={nombre}
-      />
-      <TextInput
+        onChangeText={(text) => setNombre(text)}
+        placeholder="Nombre"
         style={styles.input}
-        placeholder="Apellidos"
-        onChangeText={(text) => setApellido(text)}
+      />
+
+      <TextInput
         value={apellido}
-      />
-      <TextInput
+        onChangeText={(text) => setApellido(text)}
+        placeholder="Apellido"
         style={styles.input}
-        placeholder="Email"
-        onChangeText={(text) => setEmail(text)}
+      />
+
+      <TextInput
         value={email}
-      />
-      <TextInput
+        onChangeText={(text) => setEmail(text)}
+        placeholder="Email"
         style={styles.input}
-        placeholder="Número"
-        onChangeText={(text) => setNumero(text)}
-        value={numero}
       />
+
+      <TextInput
+        value={numero}
+        onChangeText={(text) => setNumero(text)}
+        placeholder="Telefono"
+        style={styles.input}
+      />
+
       <TextInput
         style={styles.input}
         placeholder="Clave"
@@ -64,21 +78,18 @@ const RegisterScreen = () => {
         secureTextEntry
       />
 
-      <TouchableOpacity onPress={handleRegister} style={styles.button}>
-        <Text style={styles.buttonText}>Registrarse</Text>
-      </TouchableOpacity>
+      <Button onPress={create} title="Subir datos" />
+      <StatusBar style="auto" />
     </View>
   );
-};
-
-export default RegisterScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000000', // Fondo negro
+    backgroundColor: '#1a214c', // Fondo negro
   },
   title: {
     fontSize: 40,

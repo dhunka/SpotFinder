@@ -1,58 +1,79 @@
+import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text  } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../Components/config';
+
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 
-const FormScreen = () => {
-  const [address, setAddress] = useState('');
+export default function App() {
+  const [nombre, setNombre] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [capacity, setCapacity] = useState('');
-  const [dimensions, setDimensions] = useState('');
-  const [owner, setOwner] = useState('');
-  const [rentalRate, setRentalRate] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [dimensionesAncho, setDimensionesAncho] = useState('');
+  const [dimensionesLargo, setDimensionesLargo] = useState('');
+  const [tarifa, setTarifa] = useState('');
+  const [numVehiculos, setNumVehiculos] = useState('');
 
-  const handleSave = () => {
-    // Generar un ID único para el estacionamiento
-    const parkingId = generateParkingId();
+  function create() {
+    if (
+      !nombre ||
+      !direccion ||
+      !telefono ||
+      !dimensionesAncho ||
+      !dimensionesLargo ||
+      !tarifa ||
+      !numVehiculos
+    ) {
+      alert('Ingrese los datos correctamente');
+      return;
+    }
 
-    const parkingData = {
-      id: parkingId,
-      address,
-      latitude,
-      longitude,
-      capacity,
-      dimensions,
-      owner,
-      rentalRate,
-    };
+    const camposDisponibles = crearCamposDisponibles();
 
-    // Imprimir los datos en la consola para verificar
-    console.log(parkingData);
+    addDoc(collection(db, 'estacionamiento'), {
+      nombre: nombre,
+      direccion: direccion,
+      latitude: latitude,
+      longitude: longitude,
+      telefono: telefono,
+      dimensiones: {
+        ancho: dimensionesAncho,
+        largo: dimensionesLargo,
+      },
+      tarifa: tarifa,
+      campos: camposDisponibles,
+    })
+      .then(() => {
+        console.log('datos subidos');
+        alert('Datos registrados con éxito!!');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
-    // Limpiar los campos del formulario después de guardar
-    setAddress('');
-    setLatitude('');
-    setLongitude('');
-    setCapacity('');
-    setDimensions('');
-    setOwner('');
-    setRentalRate('');
-  };
-
-  const generateParkingId = () => {
-    // Generar un ID único utilizando la fecha actual
-    const timestamp = Date.now();
-    return `PARKING_${timestamp}`;
-  };
+  function crearCamposDisponibles() {
+    const camposDisponibles = {};
+    for (let i = 1; i <= parseInt(numVehiculos); i++) {
+      camposDisponibles[`espacio${i}`] = true;
+    }
+    return camposDisponibles;
+  }
 
   return (
-    <View style={styles.formContainer}>
-      <View style={styles.row}>
-        <GooglePlacesAutocomplete
+    <View style={styles.container}>
+      <Text style={styles.title}>Registro de Estacionamiento</Text>
+
+      <View style={styles.direccionContainer}>
+      <GooglePlacesAutocomplete
           placeholder="Dirección"
           onPress={(data, details = null) => {
-            setAddress(data.description);
+            setDireccion(data.description);
             setLatitude(details.geometry.location.lat);
             setLongitude(details.geometry.location.lng);
           }}
@@ -61,87 +82,103 @@ const FormScreen = () => {
             language: 'es',
           }}
           fetchDetails={true}
-          styles={{
-            textInput: styles.input,
-          }}
+        styles={{
+          container: styles.autocompleteContainer,
+          textInput: styles.input,
+        }}
         />
       </View>
-      <View style={styles.row}>
+
+
+      <TextInput
+        value={nombre}
+        onChangeText={(text) => setNombre(text)}
+        placeholder="Nombre del estacionamiento"
+        style={styles.input}
+      />
+
+      <TextInput
+        value={telefono}
+        onChangeText={(text) => setTelefono(text)}
+        placeholder="Teléfono"
+        style={styles.input}
+      />
+
+      <View style={styles.dimensionesContainer}>
         <TextInput
-          placeholder="Cantidad de vehículos que caben"
-          value={capacity}
-          onChangeText={text => setCapacity(text)}
-          keyboardType="numeric"
-          style={styles.input}
+          value={dimensionesAncho}
+          onChangeText={(text) => setDimensionesAncho(text)}
+          placeholder="Ancho (metros)"
+          style={[styles.input, styles.dimensionesInput]}
         />
-      </View>
-      <View style={styles.row}>
+
         <TextInput
-          placeholder="Medidas del estacionamiento"
-          value={dimensions}
-          onChangeText={text => setDimensions(text)}
-          style={styles.input}
+          value={dimensionesLargo}
+          onChangeText={(text) => setDimensionesLargo(text)}
+          placeholder="Largo (metros)"
+          style={[styles.input, styles.dimensionesInput]}
         />
       </View>
-      <View style={styles.row}>
-        <TextInput
-          placeholder="Dueño del estacionamiento"
-          value={owner}
-          onChangeText={text => setOwner(text)}
-          style={styles.input}
-        />
-      </View>
-      <View style={styles.row}>
-        <TextInput
-          placeholder="Valor de la tarifa de arriendo"
-          value={rentalRate}
-          onChangeText={text => setRentalRate(text)}
-          keyboardType="numeric"
-          style={styles.input}
-        />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Guardar</Text>
-        </TouchableOpacity>
-      </View>
+
+      <TextInput
+        value={tarifa}
+        onChangeText={(text) => setTarifa(text)}
+        placeholder="Tarifa"
+        style={[styles.input, styles.input]}
+      />
+
+      <TextInput
+        value={numVehiculos}
+        onChangeText={(text) => setNumVehiculos(text)}
+        placeholder="Número de vehículos"
+        keyboardType="numeric"
+        style={styles.input}
+      />
+
+      <Button onPress={create} title="Guardar" />
+
+      <StatusBar style="auto" />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  formContainer: {
+  container: {
     flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    backgroundColor: '#1a214c',
+    padding: 20,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 20,
   },
   input: {
-    flex: 1,
-    height: 40,
-    borderColor: 'gray',
+    marginVertical: 4,
+    width: '100%',
+    height: 50,
     borderWidth: 1,
-    paddingHorizontal: 8,
-    borderRadius: 15,
+    borderRadius: 4,
+    padding: 10,
+    backgroundColor: '#ffffff',
   },
-  button: {
-    backgroundColor: 'blue',
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 20,
+  dimensionesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+  dimensionesInput: {
+    flex: 1,
+    marginHorizontal: 3,
+  },
+  direccionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  autocompleteContainer: {
+    position: 'relative',
+    width: '100%',
   },
 });
-
-export default FormScreen;
