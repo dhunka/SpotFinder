@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, TextInput, Text, Button, Modal } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button, Modal, Image } from 'react-native';
 import { useState } from 'react';
 
 import { collection, addDoc } from 'firebase/firestore';
@@ -83,11 +83,12 @@ export default function App() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.cardContainer}>
-            <Text style={styles.cardText}>Modelos: SUV/Deportivo/Urbano</Text>
+            <Text style={styles.cardText}>Modelos: -SUV -Deportivo -Urbano</Text>
             <Button onPress={toggleCard} title="Cerrar" />
           </View>
         </View>
       </Modal>
+      <Image source={require('../assets/logoauto.png')} style={styles.logo} />
     </View>
   );
 }
@@ -97,16 +98,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a214c', // Fondo negro
+    backgroundColor: '#1b2838', // Fondo negro
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    marginBottom: 20,
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#ffffff', // Texto en blanco
+    color: '#66c0f4', // Texto en blanco
     marginBottom: 20,
   },
   subtitle: {
-    color: 'grey',
+    color: '#66c0f4',
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -118,7 +124,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#66c0f4',
   },
   modalContainer: {
     flex: 1,
@@ -129,7 +135,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: '80%', // Ancho personalizado del modal
     height: 200, // Altura personalizada del modal
-    backgroundColor: '#ffffff',
+    backgroundColor: '#2a475e',
     borderRadius: 8,
     padding: 20,
   },

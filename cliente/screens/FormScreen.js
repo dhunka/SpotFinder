@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button, Image } from 'react-native';
 
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../Components/config';
@@ -136,8 +136,9 @@ export default function App() {
       />
 
       <Button onPress={create} title="Guardar" />
-
       <StatusBar style="auto" />
+
+      <Image source={require('../assets/logoparkin.png')} style={styles.logo} />
     </View>
   );
 }
@@ -147,13 +148,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a214c',
+    backgroundColor: '#1b2838',
     padding: 20,
+  },
+  logo: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#66c0f4',
     marginBottom: 20,
   },
   input: {
@@ -163,7 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#66c0f4',
   },
   dimensionesContainer: {
     flexDirection: 'row',

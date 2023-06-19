@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, TextInput, Text, Button } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button, Image } from 'react-native';
 import { useState } from 'react';
 
 import { collection, addDoc } from 'firebase/firestore';
@@ -10,10 +10,10 @@ export default function App() {
   const [apellido, setApellido] = useState('');
   const [numero, setNumero] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [rut, setrut] = useState('');
 
   function create() {
-    if (!nombre || !apellido || !numero || !email || !password) {
+    if (!nombre || !apellido || !numero || !email || !rut ) {
       alert('Ingrese los datos correctamente');
       return;
     }
@@ -24,6 +24,7 @@ export default function App() {
       email: email,
       numero: numero,
       password: password,
+      rut: rut,
     })
       .then(() => {
         console.log('datos subidos');
@@ -37,10 +38,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrarse</Text>
-      <Text style={styles.subtitle}>Crear una cuenta nueva</Text>
-
-
-      
+      <Text style={styles.subtitle}>Ingrese sus datos para quedar registrado en el sistema</Text>
 
       <TextInput
         value={nombre}
@@ -64,22 +62,26 @@ export default function App() {
       />
 
       <TextInput
+        value={rut}
+        onChangeText={(text) => setrut(text)}
+        placeholder="Rut Ej: 21.123.123-0"
+        style={styles.input}
+      />
+      
+      <TextInput
         value={numero}
         onChangeText={(text) => setNumero(text)}
-        placeholder="Telefono"
+        placeholder="Telefono Ej:9 4633 3861"
         style={styles.input}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Clave"
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        secureTextEntry
-      />
+      
 
       <Button onPress={create} title="Subir datos" />
+
       <StatusBar style="auto" />
+
+      <Image source={require('../assets/logore.png')} style={styles.logo} />
     </View>
   );
 }
@@ -89,16 +91,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1a214c', // Fondo negro
+    backgroundColor: '#1b2838', // Fondo negro
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    marginBottom: 20,
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#ffffff', // Texto en blanco
+    color: '#66c0f4', // Texto en blanco
     marginBottom: 20,
   },
   subtitle: {
-    color: 'grey',
+    color: '#66c0f4',
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -110,7 +117,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#66c0f4',
   },
   button: {
     borderRadius: 100,
