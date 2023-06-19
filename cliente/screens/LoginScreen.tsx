@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View, Image } from 'react-native';
 import React, { useState } from 'react';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
@@ -34,7 +34,7 @@ const Login = () => {
       alert('Cuenta creada con éxito');
     } catch (error: any) {
       console.log(error);
-      alert('Ya tienes una cuenta registrada con ese correo' + error.message);
+      alert('Hubo un error en el registro' + error.message);
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,11 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar sesión</Text>
+
+
+      <Image source={require('../assets/logo.png')} style={styles.logo} />
+
+      <Text style={styles.subtitle}>Iniciar sesión</Text>
 
       <TextInput
         style={styles.input}
@@ -70,19 +74,27 @@ const Login = () => {
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000', // Fondo negro
+    backgroundColor: '#1b2838', // Fondo negro
+  },
+  logo: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
   },
   title: {
-    fontSize: 40,
+    fontSize: 50,
     fontWeight: 'bold',
     color: '#ffffff', // Texto en blanco
+  },
+  subtitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#eef5ff', // Texto en blanco
     marginBottom: 20,
   },
   input: {

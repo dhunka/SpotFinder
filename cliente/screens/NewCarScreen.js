@@ -1,85 +1,118 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
-import axios from 'axios';
-import { IP } from '@env';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, TextInput, Text, Button, Modal, Image } from 'react-native';
+import { useState } from 'react';
 
-const RegisterScreen = () => {
-  const [Modelo, setModelo] = useState('');
-  const [Marca, setMarca] = useState('');
-  const [Patente, setPatente] = useState('');
-  const [Color, setColor] = useState('');
-  
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../Components/config';
 
-  const handleRegister = async () => {
-    try {
-      const userData = {
-        Modelo,
-        Marca,
-        Patente,
-        Color
-      };
-      const url = `${IP}/create/autos`;
-      const response = await axios.post(url, userData);
-      console.log('Registro exitoso:', response.data);
-      // Realizar acciones adicionales después del registro exitoso
-    } catch (error) {
-      console.error('Error en el registro:', error);
-      // Manejar el error de registro
+export default function App() {
+  const [modelo, setModelo] = useState('');
+  const [marca, setMarca] = useState('');
+  const [patente, setPatente] = useState('');
+  const [color, setColor] = useState('');
+  const [showCard, setShowCard] = useState(false);
+
+  function create() {
+    if (!modelo || !marca || !patente || !color) {
+      alert('Ingrese los datos correctamente');
+      return;
     }
-  };
+
+
+    addDoc(collection(db, 'autos'), {
+      modelo: modelo,
+      marca: marca,
+      patente: patente,
+      color: color,
+    })
+      .then(() => {
+        console.log('datos actualizados');
+        alert('Datos registrados con éxito!!');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  function toggleCard() {
+    setShowCard(!showCard);
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Agregar Vehículo </Text>
+      <Text style={styles.title}>Agregar Vehículo</Text>
       <Text style={styles.subtitle}>Ingresa los datos de tu vehículo aquí</Text>
+      <Button onPress={toggleCard} title="Como ingresar datos" />
 
       <TextInput
-        style={styles.input}
-        placeholder="Modelo"
+        value={modelo}
         onChangeText={(text) => setModelo(text)}
-        value={Modelo}
+        placeholder="Modelo"
+        style={styles.input}
       />
       <TextInput
-        style={styles.input}
-        placeholder="Marca"
+        value={marca}
         onChangeText={(text) => setMarca(text)}
-        value={Marca}
-      />
-      <TextInput
+        placeholder="Marca"
         style={styles.input}
-        placeholder="Patente"
-        onChangeText={(text) => setPatente(text)}
-        value={Patente}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Color"
-        onChangeText={(text) => setColor(text)}
-        value={Color}
       />
 
-      <TouchableOpacity onPress={handleRegister} style={styles.button}>
-        <Text style={styles.buttonText}>Agregar</Text>
-      </TouchableOpacity>
+      <TextInput
+        value={patente}
+        onChangeText={(text) => setPatente(text)}
+        placeholder="Patente"
+        style={styles.input}
+      />
+
+      <TextInput
+        value={color}
+        onChangeText={(text) => setColor(text)}
+        placeholder="Color"
+        style={styles.input}
+      />
+
+      <Button onPress={create} title="Subir datos" />
+
+      <StatusBar style="auto" />
+
+      <Modal
+        visible={showCard}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleCard}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.cardContainer}>
+            <Text style={styles.cardText}>Modelos: -SUV -Deportivo -Urbano</Text>
+            <Button onPress={toggleCard} title="Cerrar" />
+          </View>
+        </View>
+      </Modal>
+      <Image source={require('../assets/logoauto.png')} style={styles.logo} />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000000', // Fondo negro
+    backgroundColor: '#1b2838', // Fondo negro
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    marginBottom: 20,
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#ffffff', // Texto en blanco
+    color: '#66c0f4', // Texto en blanco
     marginBottom: 20,
   },
   subtitle: {
-    color: 'grey',
+    color: '#66c0f4',
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -91,20 +124,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#66c0f4',
   },
-  button: {
-    borderRadius: 100,
-    backgroundColor: 'blue',
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: 350,
-    paddingVertical: 5,
-    marginVertical: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Fondo oscuro translúcido
   },
-  buttonText: {
-    fontSize: 25,
-    color: 'white',
-  }
+  cardContainer: {
+    width: '80%', // Ancho personalizado del modal
+    height: 200, // Altura personalizada del modal
+    backgroundColor: '#2a475e',
+    borderRadius: 8,
+    padding: 20,
+  },
+  cardText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
 });
-
-export default RegisterScreen;

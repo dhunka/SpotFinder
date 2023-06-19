@@ -1,93 +1,111 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
-import axios from 'axios';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, TextInput, Text, Button, Image } from 'react-native';
+import { useState } from 'react';
 
-const RegisterScreen = () => {
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../Components/config';
+
+export default function App() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [numero, setNumero] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [rut, setrut] = useState('');
 
-  const handleRegister = async () => {
-    try {
-      const userData = {
-        nombre,
-        apellido,
-        numero,
-        email,
-        password
-      };
-      const response = await axios.post('http://localhost:8080/create', userData);
-      console.log('Registro exitoso:', response.data);
-      // Realizar acciones adicionales después del registro exitoso
-    } catch (error) {
-      console.error('Error en el registro:', error);
-      // Manejar el error de registro
+  function create() {
+    if (!nombre || !apellido || !numero || !email || !rut ) {
+      alert('Ingrese los datos correctamente');
+      return;
     }
-  };
+
+    addDoc(collection(db, 'usuario'), {
+      nombre: nombre,
+      apellido: apellido,
+      email: email,
+      numero: numero,
+      password: password,
+      rut: rut,
+    })
+      .then(() => {
+        console.log('datos subidos');
+        alert('Datos registrados con éxito!!');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrarse</Text>
-      <Text style={styles.subtitle}>Crear una cuenta nueva</Text>
+      <Text style={styles.subtitle}>Ingrese sus datos para quedar registrado en el sistema</Text>
 
       <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        onChangeText={(text) => setNombre(text)}
         value={nombre}
-      />
-      <TextInput
+        onChangeText={(text) => setNombre(text)}
+        placeholder="Nombre"
         style={styles.input}
-        placeholder="Apellidos"
-        onChangeText={(text) => setApellido(text)}
-        value={apellido}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Número"
-        onChangeText={(text) => setNumero(text)}
-        value={numero}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Clave"
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        secureTextEntry
       />
 
-      <TouchableOpacity onPress={handleRegister} style={styles.button}>
-        <Text style={styles.buttonText}>Registrarse</Text>
-      </TouchableOpacity>
+      <TextInput
+        value={apellido}
+        onChangeText={(text) => setApellido(text)}
+        placeholder="Apellido"
+        style={styles.input}
+      />
+
+      <TextInput
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+        placeholder="Email"
+        style={styles.input}
+      />
+
+      <TextInput
+        value={rut}
+        onChangeText={(text) => setrut(text)}
+        placeholder="Rut Ej: 21.123.123-0"
+        style={styles.input}
+      />
+      
+      <TextInput
+        value={numero}
+        onChangeText={(text) => setNumero(text)}
+        placeholder="Telefono Ej:9 4633 3861"
+        style={styles.input}
+      />
+
+      
+
+      <Button onPress={create} title="Subir datos" />
+
+      <StatusBar style="auto" />
+
+      <Image source={require('../assets/logore.png')} style={styles.logo} />
     </View>
   );
-};
-
-export default RegisterScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000000', // Fondo negro
+    backgroundColor: '#1b2838', // Fondo negro
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    marginBottom: 20,
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#ffffff', // Texto en blanco
+    color: '#66c0f4', // Texto en blanco
     marginBottom: 20,
   },
   subtitle: {
-    color: 'grey',
+    color: '#66c0f4',
     fontSize: 19,
     fontWeight: 'bold',
     marginBottom: 20,
@@ -99,7 +117,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#66c0f4',
   },
   button: {
     borderRadius: 100,
