@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation } from '@react-navigation/native';
-import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+import { useStripe } from '@stripe/stripe-react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectSelectedPaymentMethod,
@@ -10,7 +10,7 @@ import {
   setSelectedPaymentMethod,
   setSelectedParkingTime,
 } from '../slices/navSlice';
-
+import { IP } from '@env';
 const SelectParkingScreen = ({  }) => {
   const navigation = useNavigation();
   const Stack = createNativeStackNavigator();
@@ -79,7 +79,8 @@ const SelectParkingScreen = ({  }) => {
   const fetchPaymentSheetParams = async () => {
     const price = calculatePrice(selectedParkingTime);
     console.log(price);
-    const response = await fetch(`http://192.168.1.7:8080/payment-sheet`, {
+    const url = `${IP}/payment-sheet`;
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

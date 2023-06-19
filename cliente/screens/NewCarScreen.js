@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, Text } from 'react-native';
 import axios from 'axios';
+import { IP } from '@env';
 
 const RegisterScreen = () => {
   const [Modelo, setModelo] = useState('');
@@ -17,7 +18,8 @@ const RegisterScreen = () => {
         Patente,
         Color
       };
-      const response = await axios.post('http://192.168.1.17:8080/create/autos', userData);
+      const url = `${IP}/create/autos`;
+      const response = await axios.post(url, userData);
       console.log('Registro exitoso:', response.data);
       // Realizar acciones adicionales después del registro exitoso
     } catch (error) {
