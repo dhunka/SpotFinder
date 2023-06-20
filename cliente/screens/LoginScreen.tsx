@@ -1,8 +1,9 @@
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View, Image } from 'react-native';
 import React, { useState } from 'react';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { addDoc, collection } from 'firebase/firestore';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +17,6 @@ const Login = () => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
-      alert('Listo');
       navigation.navigate('HomeScreen');
     } catch (error: any) {
       console.log(error);
@@ -31,6 +31,17 @@ const Login = () => {
     try {
       const response = await createUserWithEmailAndPassword(auth, email, password);
       console.log(response);
+
+      const user = response.user;
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+       
+      };
+
+      const usuariosCollectionRef = collection(FIRESTORE_DB, 'usuario');
+      await addDoc(usuariosCollectionRef, userData);
+
       alert('Cuenta creada con éxito');
     } catch (error: any) {
       console.log(error);
@@ -40,14 +51,26 @@ const Login = () => {
     }
   };
 
+  const resertPassword = () => {
+    if (email != null) {
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          alert("Revise su correo electrónico");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          alert("Por favor, ingrese un correo electrónico válido");
+        });
+    } else {
+      alert("Por favor, ingrese un correo electrónico válido");
+    }
+  };
+
   return (
     <View style={styles.container}>
-
-
       <Image source={require('../assets/logo.png')} style={styles.logo} />
-
       <Text style={styles.subtitle}>Iniciar sesión</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -58,16 +81,16 @@ const Login = () => {
         style={styles.input}
         placeholder="Contraseña"
         autoCapitalize="none"
-        secureTextEntry  // Agregado para poner el input en modo password
+        secureTextEntry // Agregado para poner el input en modo password
         onChangeText={(text) => setPassword(text)}
       />
-
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <>
           <Button title="Login" onPress={signIn} />
           <Button title="Crear cuenta" onPress={signUp} />
+          <Button title="Olvidaste tu contraseña?" onPress={resertPassword} />
         </>
       )}
     </View>
