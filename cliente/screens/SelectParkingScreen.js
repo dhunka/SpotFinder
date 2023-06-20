@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-na
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation } from '@react-navigation/native';
 import { useStripe } from '@stripe/stripe-react-native';
+import { useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectSelectedPaymentMethod,
@@ -11,7 +12,10 @@ import {
   setSelectedParkingTime,
 } from '../slices/navSlice';
 import { IP } from '@env';
-const SelectParkingScreen = ({  }) => {
+
+const SelectParkingScreen = () => {
+  const route = useRoute();
+  const selectedMarker = route.params?.marker || {};
   const navigation = useNavigation();
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
@@ -142,7 +146,10 @@ const SelectParkingScreen = ({  }) => {
   
       <View style={styles.categorias}>
         <View>
-          <Text style={styles.text}>Avenida Francisco Bilbao 511</Text>
+          <Text style={styles.text}>{selectedMarker.nombre}</Text>
+        </View>
+        <View>
+         <Text style={styles.textDireccion}>{selectedMarker.direccion}</Text>
         </View>
         <View>
           <Text style={styles.text}>Tiempo</Text>
@@ -199,7 +206,6 @@ const SelectParkingScreen = ({  }) => {
       </TouchableOpacity>
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -223,6 +229,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
     color: '#c7d5e0',
+  },
+  textDireccion: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: '#c7d5e0',
+    alignContent:'center'
   },
   botonesCalificacion: {
     flexDirection: 'row',

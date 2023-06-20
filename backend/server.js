@@ -87,7 +87,19 @@ try {
     }
   });
 
-  
+  app.get('/estacionamientos', async (req, res) => {
+    try {
+       const estacionamientoRef = db. collection("estacionamiento");
+       const response = await estacionamientoRef.get();
+       let responseArr = [];
+       response. forEach(doc => {
+       responseArr.push (doc.data());
+      });
+      res. send (responseArr);
+      } catch(error) {
+      res.send(error);
+      }
+    }) 
   
   app.post('/create', async (req, res) => {
     try {
