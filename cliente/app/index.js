@@ -11,7 +11,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SelectParkingScreen from '../screens/SelectParkingScreen';
 import SearchBarFilterScreen from "../screens/SearchBarFilterScreen";
-import PaymentScreen from "../screens/PaymentScreen";
 import PaymentSuccessfulScreen from "../screens/PaymentSuccessfulScreen";
 import { initializeStripe } from "../stripe";
 import { StripeProvider } from '@stripe/stripe-react-native';
@@ -83,13 +82,7 @@ export default function App() {
               headerShown: false,
             }}
           />
-           <Stack.Screen
-            name='PaymentScreen'
-            component={PaymentScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
+         
           <Stack.Screen
             name='PaymentSuccessfulScreen'
             component={PaymentSuccessfulScreen}

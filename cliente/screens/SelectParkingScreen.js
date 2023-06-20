@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation } from '@react-navigation/native';
-import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+import { useStripe } from '@stripe/stripe-react-native';
+import { useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectSelectedPaymentMethod,
@@ -10,8 +11,11 @@ import {
   setSelectedPaymentMethod,
   setSelectedParkingTime,
 } from '../slices/navSlice';
+import { IP } from '@env';
 
-const SelectParkingScreen = ({  }) => {
+const SelectParkingScreen = () => {
+  const route = useRoute();
+  const selectedMarker = route.params?.marker || {};
   const navigation = useNavigation();
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
@@ -79,7 +83,8 @@ const SelectParkingScreen = ({  }) => {
   const fetchPaymentSheetParams = async () => {
     const price = calculatePrice(selectedParkingTime);
     console.log(price);
-    const response = await fetch(`http://192.168.1.7:8080/payment-sheet`, {
+    const url = `${IP}/payment-sheet`;
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -141,7 +146,10 @@ const SelectParkingScreen = ({  }) => {
   
       <View style={styles.categorias}>
         <View>
-          <Text style={styles.text}>Avenida Francisco Bilbao 511</Text>
+          <Text style={styles.text}>{selectedMarker.nombre}</Text>
+        </View>
+        <View>
+         <Text style={styles.textDireccion}>{selectedMarker.direccion}</Text>
         </View>
         <View>
           <Text style={styles.text}>Tiempo</Text>
@@ -198,7 +206,6 @@ const SelectParkingScreen = ({  }) => {
       </TouchableOpacity>
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -222,6 +229,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
     color: '#c7d5e0',
+  },
+  textDireccion: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: '#c7d5e0',
+    alignContent:'center'
   },
   botonesCalificacion: {
     flexDirection: 'row',
