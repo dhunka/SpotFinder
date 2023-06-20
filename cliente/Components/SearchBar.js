@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin,setOrigin,setDestination } from '../slices/navSlice';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 const SearchBar = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const [isFilterMenuVisible, setIsFilterMenuVisible] = useState(false);
   const origin = useSelector(selectOrigin);
- 
 
-  const navigateToFilterScreen = () => {
-    navigation.navigate('SearchBarFilterScreen');
-  };
 
   return (
     <View style={styles.searchBarContainer}>
       <GooglePlacesAutocomplete
-        placeholder="Where from?"
+        placeholder="Donde estas?"
         onPress={(data, details = null) => {
           dispatch(
             setOrigin({
