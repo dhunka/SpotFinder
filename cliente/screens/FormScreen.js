@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Text, Button, Image } from 'react-native';
+import { StyleSheet, View, TextInput, Text, Button, Image, Alert } from 'react-native';
 
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 import { db } from '../Components/config';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -34,8 +34,7 @@ export default function App() {
     }
 
     const camposDisponibles = crearCamposDisponibles();
-
-    addDoc(collection(db, 'estacionamiento'), {
+    const estacionamientoData = {
       nombre: nombre,
       direccion: direccion,
       latitude: latitude,
@@ -47,10 +46,20 @@ export default function App() {
       },
       tarifa: tarifa,
       campos: camposDisponibles,
-    })
-      .then(() => {
-        console.log('datos subidos');
-        alert('Datos registrados con éxito!!');
+    };
+
+    addDoc(collection(db, 'estacionamiento'), estacionamientoData)
+      .then((docRef) => {
+        const estacionamientoId = docRef.id; // Obtener el ID generado por Firebase
+        estacionamientoData.estacionamientoId = estacionamientoId; // Asignar el ID al campo estacionamientoId
+
+        setDoc(doc(db, 'estacionamiento', estacionamientoId), estacionamientoData) // Utilizar setDoc para establecer los datos del documento
+          .then(() => {
+            Alert.alert('Éxito', 'Datos registrados con éxito!!');
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
         console.log(error);
@@ -70,7 +79,7 @@ export default function App() {
       <Text style={styles.title}>Registro de Estacionamiento</Text>
 
       <View style={styles.direccionContainer}>
-      <GooglePlacesAutocomplete
+        <GooglePlacesAutocomplete
           placeholder="Dirección"
           onPress={(data, details = null) => {
             setDireccion(data.description);
@@ -82,13 +91,12 @@ export default function App() {
             language: 'es',
           }}
           fetchDetails={true}
-        styles={{
-          container: styles.autocompleteContainer,
-          textInput: styles.input,
-        }}
+          styles={{
+            container: styles.autocompleteContainer,
+            textInput: styles.input,
+          }}
         />
       </View>
-
 
       <TextInput
         value={nombre}
