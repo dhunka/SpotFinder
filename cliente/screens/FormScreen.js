@@ -1,14 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, Text, Button, Image, Alert } from 'react-native';
 
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
-import { db } from '../Components/config';
+import { db, auth } from '../Components/config';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { GOOGLE_MAPS_APIKEY } from '@env';
 
 export default function App() {
+  const [userId, setUserId] = useState(null);
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -18,6 +19,18 @@ export default function App() {
   const [dimensionesLargo, setDimensionesLargo] = useState('');
   const [tarifa, setTarifa] = useState('');
   const [numVehiculos, setNumVehiculos] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   function create() {
     if (
@@ -35,6 +48,7 @@ export default function App() {
 
     const camposDisponibles = crearCamposDisponibles();
     const estacionamientoData = {
+      userId: userId,
       nombre: nombre,
       direccion: direccion,
       latitude: latitude,
@@ -50,10 +64,10 @@ export default function App() {
 
     addDoc(collection(db, 'estacionamiento'), estacionamientoData)
       .then((docRef) => {
-        const estacionamientoId = docRef.id; // Obtener el ID generado por Firebase
-        estacionamientoData.estacionamientoId = estacionamientoId; // Asignar el ID al campo estacionamientoId
+        const estacionamientoId = docRef.id;
+        estacionamientoData.estacionamientoId = estacionamientoId;
 
-        setDoc(doc(db, 'estacionamiento', estacionamientoId), estacionamientoData) // Utilizar setDoc para establecer los datos del documento
+        setDoc(doc(db, 'estacionamiento', estacionamientoId), estacionamientoData)
           .then(() => {
             Alert.alert('Éxito', 'Datos registrados con éxito!!');
           })
@@ -67,9 +81,9 @@ export default function App() {
   }
 
   function crearCamposDisponibles() {
-    const camposDisponibles = {};
+    const camposDisponibles = [];
     for (let i = 1; i <= parseInt(numVehiculos); i++) {
-      camposDisponibles[`espacio${i}`] = true;
+      camposDisponibles.push({ espacio: i, disponible: true });
     }
     return camposDisponibles;
   }
@@ -88,7 +102,7 @@ export default function App() {
           }}
           query={{
             key: GOOGLE_MAPS_APIKEY,
-            language: 'es',
+            language: 'en',
           }}
           fetchDetails={true}
           styles={{
