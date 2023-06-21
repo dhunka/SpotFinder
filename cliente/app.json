@@ -5,6 +5,14 @@
       "bundler": "metro"
     },
     "name": "SpotFinder",
-    "slug": "SpotFinder"
+    "slug": "SpotFinder",
+    "extra": {
+      "eas": {
+        "projectId": "922a50b5-c6b9-4aa8-bd06-82834ab6a404"
+      }
+    },
+    "android": {
+      "package": "com.dhunka.SpotFinder"
+    }
   }
 }

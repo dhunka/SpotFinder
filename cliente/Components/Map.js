@@ -15,11 +15,11 @@ const Map = () => {
   const selectedMarker = useSelector(selectSelectedMarker);
   const [isFloatingBarVisible, setIsFloatingBarVisible] = useState(false);
   const [markersList, setMarkersList] = useState([]);
-  
+
   useEffect(() => {
     const fetchMarkers = async () => {
       try {
-        const response = await axios.get('http://192.168.1.2:8080/estacionamientos');
+        const response = await axios.get(`${IP}/estacionamientos`);
         setMarkersList(response.data);
       } catch (error) {
         console.error('Error al obtener los marcadores:', error);
@@ -37,16 +37,22 @@ const Map = () => {
   const handleFloatingBarPress = () => {
     navigation.navigate('SelectParkingScreen', { marker: selectedMarker });
   };
-  
+
   const renderFloatingBar = () => {
+   
     if (!isFloatingBarVisible) {
       return null;
     }
-  
-    const campos = selectedMarker.campos;
-    const totalSpots = Object.keys(campos).length;
-    const numTrueSpots = Object.values(campos).filter(value => value === true).length;
-  
+
+    const espacios = selectedMarker.espacios;
+    const totalSpots = Object.keys(espacios).length;
+    const numTrueSpots = Object.values(espacios).filter(value => value === true).length;
+    const occupancyRatio = numTrueSpots / totalSpots;
+    let textColor = 'green'; // Color predeterminado para todos los spots disponibles
+
+    if (occupancyRatio < 0.5) {
+      textColor = 'yellow'; // Cambiar a amarillo si menos de la mitad de los spots están ocupados
+    }
     return (
       <TouchableOpacity
         onPress={handleFloatingBarPress}
@@ -67,24 +73,32 @@ const Map = () => {
             marginLeft: 10,
             justifyContent: 'center',
             flexDirection: 'column',
-            flex: 1, // Añadimos flex: 1 para que el texto se ajuste dentro del espacio disponible
+            flex: 1,
           }}
         >
           <View>
             <Text numberOfLines={1} style={styles.addressText}>{selectedMarker.direccion}</Text>
           </View>
           <View>
-            <Text>{numTrueSpots}/{totalSpots} spots</Text>
-          </View>
-          
+            <Text style={[styles.spotsText, { color: textColor }]}>
+              {numTrueSpots}/{totalSpots} spots
+            </Text>
+         </View>
         </View>
       </TouchableOpacity>
     );
   };
+
+  const filteredMarkers = markersList.filter(marker => {
+    const espacios = marker.espacios;
+    const hasTrueSpots = Object.values(espacios).some(value => value === true);
+    return hasTrueSpots;
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ marginTop: 50 }}>
-   
+        {/* ... */}
       </View>
       <MapView
         style={{ flex: 1, position: 'relative' }}
@@ -95,9 +109,9 @@ const Map = () => {
           longitudeDelta: 0.005,
         }}
       >
-       {markersList.map((marker, index) => (
+        {filteredMarkers.map((marker, index) => (
           <Marker
-            key={index.toString()} // Utilizar el índice como clave en lugar del id
+            key={index.toString()}
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             title={marker.nombre}
             description={marker.description}
@@ -106,8 +120,6 @@ const Map = () => {
             <MarkerImage />
           </Marker>
         ))}
-
-
       </MapView>
       <View style={{ position: 'absolute', bottom: 0 }}>
         {renderFloatingBar()}
@@ -144,5 +156,8 @@ const styles = StyleSheet.create({
   },
   imagen: {
     borderRadius: 15,
+  },
+  spotsText: {
+    
   },
 });

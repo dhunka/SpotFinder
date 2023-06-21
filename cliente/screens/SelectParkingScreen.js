@@ -47,35 +47,6 @@ const SelectParkingScreen = () => {
         return 0;
     }
   };
-  const handlePaymentResult = async (paymentIntentId, success) => {
-    try {
-     
-      const response = await fetch(`${IP}/payment-sheet-result`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          paymentIntentId: paymentIntentId,
-          success: success,
-        }),
-      });
-  
-      if (response.ok) {
-        // El pago se procesó correctamente
-      
-        if (success) {
-          // Actualizar el estado del espacio de estacionamiento a false en el servidor
-          
-        }
-      } else {
-        // Error al procesar el pago
-        
-      }
-    } catch (error) {
-   
-    }
-  };  
   
   const handleReservation = async () => {
  
@@ -95,13 +66,19 @@ const SelectParkingScreen = () => {
         });
 
         if (!error) {
-          // Llamar a handlePaymentResult con los datos necesarios
-          await handlePaymentResult(paymentIntent?.id, true);
+          console.log(selectedMarker.estacionamientoId);
+          const response = await fetch(`${IP}/update-parking-space-status/${selectedMarker.estacionamientoId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
          
           navigation.navigate('PaymentSuccessfulScreen', { selectedPaymentMethod, selectedParkingTime, price });
         }
 
-        // Handle errors
+       
         if (error) {
           Alert.alert(`Error code: ${error.code}`, error.message);
         }

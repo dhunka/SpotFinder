@@ -6,12 +6,13 @@ const app = express();
 const admin = require("firebase-admin");
 const credentials = require("./key.json");
 const stripe = require('stripe')('sk_test_51N75MIGD6rvnwVkTFtBSmdDduY8PZwRC88wo90jCkiWVx6RljIXff6Ezjv5Oym2LTX6dUeLLXYgxD5w6cQ9RZt0m00TteEuftQ');
+import { getMessaging } from "firebase/messaging";
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 
-try {
+
   admin.initializeApp({
     credential: admin.credential.cert(credentials)
   });
@@ -93,31 +94,42 @@ app.post('/payment-sheet-result', async (req, res) => {
   }
 });
 
- // Endpoint para actualizar el estado del espacio de estacionamiento
- app.post('/update-parking-space-status', async (req, res) => {
-  try {
-    const { estacionamientoId, ocupado } = req.body;
+ 
 
+app.post('/update-parking-space-status/:estacionamientoId', async (req, res) => {
+  const estacionamientoId = req.params.estacionamientoId;
+  try {
     // Obtener el documento del estacionamiento
-    const parkingRef = db.collection('estacionamientos').doc(estacionamientoId);
+    const parkingRef = db.collection('estacionamiento').doc(estacionamientoId);
     const parkingDoc = await parkingRef.get();
 
     if (parkingDoc.exists) {
-      // Buscar un espacio con valor "true" y cambiarlo a "false"
       const parkingData = parkingDoc.data();
-      const espacios = Object.keys(parkingData).filter(key => key.startsWith('espacio'));
-      let espacioActualizado = false;
 
-      for (let i = 0; i < espacios.length; i++) {
-        const espacio = espacios[i];
-        if (parkingData[espacio] === true) {
-          await parkingRef.update({ [espacio]: false });
-          espacioActualizado = true;
-          break;
-        }
-      }
+      console.log('Datos del documento:', parkingData);
 
-      if (espacioActualizado) {
+      const espacios = parkingData.espacios;
+
+      console.log('Espacios disponibles:', espacios);
+
+      // Buscar el primer espacio disponible
+      const espacioIndex = espacios.findIndex(espacio => espacio === true);
+
+      console.log('Índice del espacio disponible:', espacioIndex);
+
+      if (espacioIndex !== -1) {
+        // Crear un nuevo arreglo con los mismos valores
+        const nuevosEspacios = [...espacios];
+
+        // Cambiar el valor del espacio a false
+        nuevosEspacios[espacioIndex] = false;
+
+        console.log('Espacios actualizados:', nuevosEspacios);
+
+        await parkingRef.update({
+          espacios: nuevosEspacios
+        });
+
         res.status(200).json({ message: 'Estado del espacio actualizado exitosamente' });
       } else {
         res.status(404).json({ error: 'No se encontró ningún espacio disponible' });
@@ -132,6 +144,12 @@ app.post('/payment-sheet-result', async (req, res) => {
 });
 
 
+
+
+
+
+
+ 
   app.get('/estacionamientos', async (req, res) => {
     try {
        const estacionamientoRef = db. collection("estacionamiento");
@@ -187,6 +205,23 @@ app.post('/payment-sheet-result', async (req, res) => {
       res.send(error);
     }
   });
+  app.get('/estacionamiento/:id', async (req, res) => {
+    try {
+      const docId = req.params.id;
+      const docRef = db.collection('estacionamiento').doc(docId);
+      const doc = await docRef.get();
+  
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Documento no encontrado' });
+      }
+  
+      // Devuelve los datos del documento como respuesta
+      res.json(doc.data());
+    } catch (error) {
+      console.error('Error al obtener el documento:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  });
   
   app.post('/update', async(req, res) => {
       try {
@@ -216,7 +251,4 @@ app.post('/payment-sheet-result', async (req, res) => {
   app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}.`);  
   });
-} catch (error) {
-  console.error('Error al inicializar Firebase o al acceder a Firestore:', error);
-  res.status(500).send('Error al inicializar Firebase o al acceder a Firestore');
-}
+

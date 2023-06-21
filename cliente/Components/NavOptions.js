@@ -17,24 +17,6 @@ const data =[
         image:"https://links.papareact.com/3pn",
         screen:"MapScreen",
     },
-    {
-      id:"123455",
-      title:"Agregar Estacionamiento",
-      image:"https://links.papareact.com/3pn",
-      screen:"FormScreen",
-    },
-    {
-        id:"123456",
-        title:"Registrarse",
-        image:"https://links.papareact.com/3pn",
-        screen:"RegisterScreen",
-    },
-    {
-      id:"1234567",
-      title:"Agregar Vehículo",
-      image:"https://links.papareact.com/3pn",
-      screen:"NewCarScreen",
-  },
 ]
 
 const NavOptions = () => {
@@ -48,7 +30,7 @@ const NavOptions = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => navigation.navigate(item.screen)}
-            style={tw`p-2 pl-6 pb-8 pt-4 bg-gray-200 m-2 w-50`}
+            style={tw`p-2 pl-6 pb-8 pt-4 bg-gray-200 m-2 w-48`}
           >
             <View>
               <Image
@@ -57,6 +39,7 @@ const NavOptions = () => {
               />
               <Text style={tw`mt-2 text-sm font-semibold`}>{item.title}</Text>
             </View>
+            
           </TouchableOpacity>
         )}
       />
