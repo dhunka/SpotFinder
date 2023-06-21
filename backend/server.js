@@ -9,7 +9,7 @@ const stripe = require('stripe')('sk_test_51N75MIGD6rvnwVkTFtBSmdDduY8PZwRC88wo9
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use(express.json());
 
 try {
   admin.initializeApp({
@@ -34,58 +34,103 @@ try {
     );
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(price * 100),
-      currency: 'usd',
+      currency: 'clp',
       customer: customer.id,
       payment_method_types: ['card'],
     });
-
+  
     res.json({
-      paymentIntent: paymentIntent.client_secret,
+      paymentIntent: paymentIntent.client_secret, // Cambio aquí: enviar solo el client_secret en lugar del objeto completo
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
       publishableKey: 'pk_test_51N75MIGD6rvnwVkTDi2rwCqgzXzroP7Osg6FjbznpuZyFqCTKrhtYpDYjuXvCm1AqhFSFfuFpo5CunviTZnyH52K00HWd3jwyP'
     });
   });
+  
+  
 
 
   // Endpoint para manejar el resultado de la hoja de pago
-  app.post('/payment-sheet-result', async (req, res) => {
-    try {
-      try{
-        const { paymentIntentId, success } = req.body;
-        console.log('Payment Sheet Result - Data Received:', req.body);
-        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      }catch (error) {
+app.post('/payment-sheet-result', async (req, res) => {
+  try {
+
+    const { paymentIntentId, success } = req.body;
+
+
+    if (success) {
+      // Acceder al paymentIntentId enviado por el cliente
+      console.log('paymentIntentId:', paymentIntentId);
+
+      // Obtener el Payment Intent desde Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+      // Crear el objeto con los datos a guardar en Firebase
+      const paymentData = {
+        paymentIntentId: paymentIntentId,
+        amount: paymentIntent.amount,
+        // Agrega más propiedades según los datos que desees guardar en la base de datos
+      };
+
+   
+      console.log('paymentData:', paymentData);
+
+      try {
+        // Guardar los datos en Firebase
+        const docRef = await db.collection('Pagos').add(paymentData);
+        console.log('Documento creado:', docRef.id);
+        res.status(200).send('Payment succeeded');
+      } catch (error) {
         console.error('Error al guardar el documento en Firestore:', error);
         res.status(500).send('Error al guardar el documento en Firestore');
       }
-
-      if (success) {
-        const pagoJson = {
-          paymentIntentId: paymentIntentId,
-          monto: paymentIntent.amount,
-          // Agrega más propiedades según los datos que desees guardar en la base de datos
-        };
-           console.log('paymentIntentId:', paymentIntentId);
-           console.log('success:', success);
-           console.log('pagoJson:', pagoJson);
-        try {
-          const response = await db.collection('pagos').doc().set(pagoJson);
-          console.log('Documento creado:', response);
-        } catch (error) {
-          console.error('Error al guardar el documento en Firestore:', error);
-          res.status(500).send('Error al guardar el documento en Firestore');
-        }
-        
-      } else {
-        await stripe.paymentIntents.cancel(paymentIntentId);
-        res.status(200).send('Payment canceled');
-      }
-    } catch (error) {
-      console.error('Error handling payment sheet result:', error);
-      res.status(500).send('Error handling payment sheet result');
+    } else {
+      await stripe.paymentIntents.cancel(paymentIntentId);
+      res.status(200).send('Payment canceled');
     }
-  });
+  } catch (error) {
+    console.error('Error handling payment sheet result:', error);
+    res.status(500).send('Error handling payment sheet result');
+  }
+});
+
+ // Endpoint para actualizar el estado del espacio de estacionamiento
+ app.post('/update-parking-space-status', async (req, res) => {
+  try {
+    const { estacionamientoId, ocupado } = req.body;
+
+    // Obtener el documento del estacionamiento
+    const parkingRef = db.collection('estacionamientos').doc(estacionamientoId);
+    const parkingDoc = await parkingRef.get();
+
+    if (parkingDoc.exists) {
+      // Buscar un espacio con valor "true" y cambiarlo a "false"
+      const parkingData = parkingDoc.data();
+      const espacios = Object.keys(parkingData).filter(key => key.startsWith('espacio'));
+      let espacioActualizado = false;
+
+      for (let i = 0; i < espacios.length; i++) {
+        const espacio = espacios[i];
+        if (parkingData[espacio] === true) {
+          await parkingRef.update({ [espacio]: false });
+          espacioActualizado = true;
+          break;
+        }
+      }
+
+      if (espacioActualizado) {
+        res.status(200).json({ message: 'Estado del espacio actualizado exitosamente' });
+      } else {
+        res.status(404).json({ error: 'No se encontró ningún espacio disponible' });
+      }
+    } else {
+      res.status(404).json({ error: 'No se encontró el documento del estacionamiento' });
+    }
+  } catch (error) {
+    console.error('Error al actualizar el estado del espacio:', error);
+    res.status(500).json({ error: 'Error al actualizar el estado del espacio' });
+  }
+});
+
 
   app.get('/estacionamientos', async (req, res) => {
     try {

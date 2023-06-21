@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios'; // Asegúrate de tener instalada la dependencia axios
+import axios from 'axios';
 import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 import SearchBar from './SearchBar';
 import { IP } from '@env';
-// Importaciones omitidas por brevedad
 
 const Map = () => {
   const navigation = useNavigation();
@@ -39,19 +38,6 @@ const Map = () => {
     navigation.navigate('SelectParkingScreen', { marker: selectedMarker });
   };
   
- 
-  const MycustomMarkerView = () => {
-    return (
-      <Image
-        style={{
-          width: 40,
-          height: 40,
-        }}
-        source={require('../assets/park_parking_icon.png')}
-      />
-    );
-  };
-
   const renderFloatingBar = () => {
     if (!isFloatingBarVisible) {
       return null;
@@ -81,29 +67,24 @@ const Map = () => {
             marginLeft: 10,
             justifyContent: 'center',
             flexDirection: 'column',
+            flex: 1, // Añadimos flex: 1 para que el texto se ajuste dentro del espacio disponible
           }}
         >
           <View>
-            <Text>{selectedMarker.direccion}</Text>
+            <Text numberOfLines={1} style={styles.addressText}>{selectedMarker.direccion}</Text>
           </View>
           <View>
             <Text>{numTrueSpots}/{totalSpots} spots</Text>
           </View>
-          <View>
-            <Text>0.5 km</Text>
-          </View>
+          
         </View>
       </TouchableOpacity>
     );
   };
-  
-  
-  
-
   return (
     <View style={{ flex: 1 }}>
       <View style={{ marginTop: 50 }}>
-        <SearchBar />
+   
       </View>
       <MapView
         style={{ flex: 1, position: 'relative' }}
@@ -114,22 +95,36 @@ const Map = () => {
           longitudeDelta: 0.005,
         }}
       >
-         {markersList.map((marker) => (
+       {markersList.map((marker, index) => (
           <Marker
-            key={marker.id}
+            key={index.toString()} // Utilizar el índice como clave en lugar del id
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-            title={marker.direccion}
+            title={marker.nombre}
             description={marker.description}
             onPress={() => handleMarkerPress(marker)}
           >
-            <MycustomMarkerView />
+            <MarkerImage />
           </Marker>
         ))}
+
+
       </MapView>
       <View style={{ position: 'absolute', bottom: 0 }}>
         {renderFloatingBar()}
       </View>
     </View>
+  );
+};
+
+const MarkerImage = () => {
+  return (
+    <Image
+      style={{
+        width: 40,
+        height: 40,
+      }}
+      source={require('../assets/park_parking_icon.png')}
+    />
   );
 };
 
@@ -151,4 +146,3 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
 });
-

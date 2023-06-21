@@ -23,7 +23,6 @@ export default function App() {
       apellido: apellido,
       email: email,
       numero: numero,
-      password: password,
       rut: rut,
     })
       .then(() => {
@@ -64,14 +63,14 @@ export default function App() {
       <TextInput
         value={rut}
         onChangeText={(text) => setrut(text)}
-        placeholder="Rut Ej: 21.123.123-0"
+        placeholder="Rut"
         style={styles.input}
       />
       
       <TextInput
         value={numero}
         onChangeText={(text) => setNumero(text)}
-        placeholder="Telefono Ej:9 4633 3861"
+        placeholder="Telefono"
         style={styles.input}
       />
 
@@ -118,6 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 10,
     backgroundColor: '#66c0f4',
+    color: '#ffffff',
   },
   button: {
     borderRadius: 100,

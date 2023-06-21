@@ -23,6 +23,9 @@ const SelectParkingScreen = () => {
   const selectedParkingTime = useSelector(selectSelectedParkingTime);
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+ 
+
+
 
   const handlePaymentMethodSelect = (method) => {
     dispatch(setSelectedPaymentMethod(method));
@@ -35,46 +38,78 @@ const SelectParkingScreen = () => {
   const calculatePrice = (parkingTime) => {
     switch (parkingTime) {
       case '30':
-        return 5;
+        return 10;
       case '60':
-        return 8;
+        return 20;
       case '120':
-        return 15;
+        return 30;
       default:
         return 0;
     }
   };
+  const handlePaymentResult = async (paymentIntentId, success) => {
+    try {
+     
+      const response = await fetch(`${IP}/payment-sheet-result`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentIntentId: paymentIntentId,
+          success: success,
+        }),
+      });
+  
+      if (response.ok) {
+        // El pago se procesó correctamente
+      
+        if (success) {
+          // Actualizar el estado del espacio de estacionamiento a false en el servidor
+          
+        }
+      } else {
+        // Error al procesar el pago
+        
+      }
+    } catch (error) {
+   
+    }
+  };  
   
   const handleReservation = async () => {
-    console.log("Reservar");
-  
+ 
+
     // Check if the user has selected a payment method
     if (selectedPaymentMethod === 'Stripe') {
-  
+
       // Check if the user has selected a parking time
       if (selectedParkingTime) {
-  
+
         // Calculate the price of the parking
         const price = calculatePrice(selectedParkingTime);
-  
+
         // Present the payment sheet
-        const { error } = await presentPaymentSheet({
+        const { paymentIntent, error } = await presentPaymentSheet({
           amount: price,
         });
 
         if (!error) {
-          navigation.navigate('PaymentSuccessfulScreen',{selectedPaymentMethod,selectedParkingTime,price});
+          // Llamar a handlePaymentResult con los datos necesarios
+          await handlePaymentResult(paymentIntent?.id, true);
+         
+          navigation.navigate('PaymentSuccessfulScreen', { selectedPaymentMethod, selectedParkingTime, price });
         }
-  
+
         // Handle errors
         if (error) {
           Alert.alert(`Error code: ${error.code}`, error.message);
         }
-  
+
       } else {
         Alert.alert("Error", "Selecciona un tiempo de estacionamiento");
       }
-  
+
     } else {
       // Logic for other payment methods
     }
@@ -82,7 +117,6 @@ const SelectParkingScreen = () => {
 
   const fetchPaymentSheetParams = async () => {
     const price = calculatePrice(selectedParkingTime);
-    console.log(price);
     const url = `${IP}/payment-sheet`;
     const response = await fetch(url, {
       method: 'POST',
@@ -94,12 +128,16 @@ const SelectParkingScreen = () => {
       }),
     });
   
+  
+  
     const {
       paymentIntent,
       ephemeralKey,
       customer,
       publishableKey,
     } = await response.json();
+  
+  
   
     return {
       paymentIntent,
@@ -108,6 +146,7 @@ const SelectParkingScreen = () => {
       publishableKey,
     };
   };
+  
 
   const initializePaymentSheet = async () => {
     const {
@@ -159,21 +198,21 @@ const SelectParkingScreen = () => {
               onPress={() => handleParkingTimeSelect('30')}
             >
               <Text style={styles.textBotonCalificaTop}>30 min</Text>
-              <Text style={styles.textBotonCalificaBottom}>$5.00</Text>
+              <Text style={styles.textBotonCalificaBottom}>$1000</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.botonCalifica, selectedParkingTime === '60' ? styles.botonCalificaSeleccionado : null]}
               onPress={() => handleParkingTimeSelect('60')}
             >
               <Text style={styles.textBotonCalificaTop}>60 min</Text>
-              <Text style={styles.textBotonCalificaBottom}>$8.00</Text>
+              <Text style={styles.textBotonCalificaBottom}>$2000</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.botonCalifica, selectedParkingTime === '120' ? styles.botonCalificaSeleccionado : null]}
               onPress={() => handleParkingTimeSelect('120')}
             >
               <Text style={styles.textBotonCalificaTop}>120 min</Text>
-              <Text style={styles.textBotonCalificaBottom}>$12.00</Text>
+              <Text style={styles.textBotonCalificaBottom}>$3000</Text>
             </TouchableOpacity>
           </View>
         </View>

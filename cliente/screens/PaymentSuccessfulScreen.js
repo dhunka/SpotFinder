@@ -15,11 +15,11 @@ const PaymentSuccessfulScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>¡Pago Exitoso!</Text>
-      <Text style={styles.subtitle}>Detalles de la compra:</Text>
+      <Text style={styles.subtitle}>Detalles del arriendo:</Text>
       <View style={styles.detailsContainer}>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Tiempo de estacionamiento:</Text>
-          <Text style={styles.detailValue}>{selectedParkingTime}</Text>
+          <Text style={styles.detailValue}> {selectedParkingTime} min</Text>
         </View>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Método de pago:</Text>
@@ -27,7 +27,7 @@ const PaymentSuccessfulScreen = ({ route }) => {
         </View>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Monto pagado:</Text>
-          <Text style={styles.detailValue}>${price}</Text>
+          <Text style={styles.detailValue}>${price*100}</Text>
         </View>
       </View>
         <TouchableOpacity style={styles.button} onPress={openMaps}>
