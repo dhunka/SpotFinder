@@ -16,6 +16,7 @@ import { initializeStripe } from "../stripe";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { STRIPE_APIKEY } from '@env';
 import FormScreen from "../screens/FormScreen";
+import ParkingListScreen from "../screens/ParkingListScreen";
 initializeStripe();
 
 export default function App() {
@@ -93,6 +94,13 @@ export default function App() {
           <Stack.Screen
             name='FormScreen'
             component={FormScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name='ParkingListScreen'
+            component={ParkingListScreen}
             options={{
               headerShown: false,
             }}
