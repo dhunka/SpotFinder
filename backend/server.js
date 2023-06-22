@@ -6,7 +6,6 @@ const app = express();
 const admin = require("firebase-admin");
 const credentials = require("./key.json");
 const stripe = require('stripe')('sk_test_51N75MIGD6rvnwVkTFtBSmdDduY8PZwRC88wo90jCkiWVx6RljIXff6Ezjv5Oym2LTX6dUeLLXYgxD5w6cQ9RZt0m00TteEuftQ');
-import { getMessaging } from "firebase/messaging";
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

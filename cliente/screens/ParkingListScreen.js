@@ -57,7 +57,6 @@ export default function ListaEstacionamientos() {
           <Text style={styles.detallesTexto}>Dirección: {estacionamientoSeleccionado.direccion}</Text>
           <Text style={styles.detallesTexto}>Teléfono: {estacionamientoSeleccionado.telefono}</Text>
           <Text style={styles.detallesTexto}>Dimensiones (Ancho x Largo): {estacionamientoSeleccionado.dimensiones.ancho} x {estacionamientoSeleccionado.dimensiones.largo}</Text>
-          <Text style={styles.detallesTexto}>Tarifa: {estacionamientoSeleccionado.tarifa}</Text>
           {/* Aquí puedes mostrar más detalles del estacionamiento */}
         </View>
       )}

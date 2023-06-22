@@ -59,7 +59,7 @@ export default function App() {
         largo: dimensionesLargo,
       },
       tarifa: tarifa,
-      campos: camposDisponibles,
+      espacios: camposDisponibles,
     };
 
     addDoc(collection(db, 'estacionamiento'), estacionamientoData)
@@ -82,8 +82,8 @@ export default function App() {
 
   function crearCamposDisponibles() {
     const camposDisponibles = [];
-    for (let i = 1; i <= parseInt(numVehiculos); i++) {
-      camposDisponibles.push({ espacio: i, disponible: true });
+    for (let i = 0; i < parseInt(numVehiculos); i++) {
+      camposDisponibles.push(true);
     }
     return camposDisponibles;
   }

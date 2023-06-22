@@ -4,7 +4,7 @@ import tw from 'tailwind-react-native-classnames';
 import { useDispatch } from 'react-redux';
 import SearchBar from '../Components/SearchBar';
 import { useNavigation } from '@react-navigation/native';
-import messaging from '@react-native-firebase/messaging';
+
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -18,7 +18,7 @@ const HomeScreen = () => {
       </View>
       <View style={styles.body}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('MapScreen')}
+          onPress={() => navigation.navigate('NewCarScreen')}
           style={[styles.button, { backgroundColor: '#66c0f4' }]}
         >
           <View>
@@ -26,11 +26,11 @@ const HomeScreen = () => {
               style={styles.buttonImage}
               source={{ uri: 'https://links.papareact.com/3pn' }}
             />
-            <Text style={styles.buttonText}>Estacionamiento</Text>
+            <Text style={styles.buttonText}>Autos</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('MapScreen')}
+          onPress={() => navigation.navigate('FormScreen')}
           style={[styles.button, { backgroundColor: '#66c0f4' }]}
         >
           <View>
@@ -42,7 +42,7 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('MapScreen')}
+          onPress={() => navigation.navigate('ParkingListScreen')}
           style={[styles.button2, { backgroundColor: '#66c0f4' }]}
         >
           <View>
@@ -56,13 +56,13 @@ const HomeScreen = () => {
       </View>
       <View style={styles.bottomBar}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('ProfileScreen')}
+          onPress={() => navigation.navigate('HomeScreen')}
           style={[styles.bottomBarButton, { backgroundColor: '#2a475e' }]}
         >
           <Text style={styles.bottomBarButtonText}>Inicio</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('HomeScreen')}
+          onPress={() => navigation.navigate('ProfileScreen')}
           style={[styles.bottomBarButton, { backgroundColor: '#2a475e' }]}
         >
           <Text style={styles.bottomBarButtonText}>Perfil</Text>

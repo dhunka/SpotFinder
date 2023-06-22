@@ -1,16 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, TextInput, Text, Button, Image } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../Components/config';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
+import { db, auth } from '../Components/config';
 
 export default function App() {
+  const [userId, setUserId] = useState(null);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [numero, setNumero] = useState('');
   const [email, setEmail] = useState('');
   const [rut, setrut] = useState('');
+
+  const usuarioData = {
+    userId: userId,
+    nombre: nombre,
+    apellido: apellido,
+    numero: numero,
+    email: email,
+    rut: rut
+  };
+  
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   function create() {
     if (!nombre || !apellido || !numero || !email || !rut ) {
@@ -18,20 +40,22 @@ export default function App() {
       return;
     }
 
-    addDoc(collection(db, 'usuario'), {
-      nombre: nombre,
-      apellido: apellido,
-      email: email,
-      numero: numero,
-      rut: rut,
+    addDoc(collection(db, 'autos'), usuarioData)
+    .then((docRef) => {
+      const usuarioId = docRef.id;
+      usuarioData.usuarioId = usuarioId;
+
+      setDoc(doc(db, 'usuarios', usuarioId), usuarioData)
+        .then(() => {
+          Alert.alert('Éxito', 'Datos registrados con éxito!!');
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     })
-      .then(() => {
-        console.log('datos subidos');
-        alert('Datos registrados con éxito!!');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    .catch((error) => {
+      console.log(error);
+    });
   }
 
   return (

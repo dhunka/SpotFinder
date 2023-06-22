@@ -1,16 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, TextInput, Text, Button, Modal, Image } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { db, auth } from '../Components/config';
 
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../Components/config';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
+
 
 export default function App() {
+  const [userId, setUserId] = useState(null);
   const [modelo, setModelo] = useState('');
   const [marca, setMarca] = useState('');
   const [patente, setPatente] = useState('');
   const [color, setColor] = useState('');
   const [showCard, setShowCard] = useState(false);
+
+  const autosData = {
+    userId: userId,
+    modelo: modelo,
+    marca: marca,
+    patente: patente,
+    color: color
+  };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   function create() {
     if (!modelo || !marca || !patente || !color) {
@@ -19,19 +41,22 @@ export default function App() {
     }
 
 
-    addDoc(collection(db, 'autos'), {
-      modelo: modelo,
-      marca: marca,
-      patente: patente,
-      color: color,
+    addDoc(collection(db, 'autos'), autosData)
+    .then((docRef) => {
+      const autosId = docRef.id;
+      autosData.autosId = autosId;
+
+      setDoc(doc(db, 'autos', autosId), autosData)
+        .then(() => {
+          Alert.alert('Éxito', 'Datos registrados con éxito!!');
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     })
-      .then(() => {
-        console.log('datos actualizados');
-        alert('Datos registrados con éxito!!');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    .catch((error) => {
+      console.log(error);
+    });
   }
 
   function toggleCard() {

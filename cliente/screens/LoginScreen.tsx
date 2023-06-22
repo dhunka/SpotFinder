@@ -89,7 +89,7 @@ const Login = () => {
       ) : (
         <>
           <Button title="Login" onPress={signIn} />
-          <Button title="Crear cuenta" onPress={signUp} />
+          <Button title="Crear cuenta" onPress={() => navigation.navigate('RegisterScreen')} />
           <Button title="Olvidaste tu contraseña?" onPress={resertPassword} />
         </>
       )}
