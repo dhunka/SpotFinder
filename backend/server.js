@@ -48,8 +48,71 @@ app.use(express.json());
   });
   
   
+  app.post('/transacciones', (req, res) => {
+    try {
+      const DueñoId = req.body. DueñoId;
+      const userId = req.body.userId;
+      const estacionamientoId = req.body.estacionamientoId;
+      
+      // Obtener la hora y fecha actual
+      const fechaActual = new Date();
 
+      // Crear un nuevo documento en la colección "Transacción"
+      const transaccionRef = db.collection('Transaccion').doc();
+      const nuevaTransaccion = {
+        userId,
+        estacionamientoId,
+        DueñoId,
+        fecha: fechaActual,
+      };
+      
+      // Guardar los datos en el documento
+      transaccionRef.set(nuevaTransaccion);
 
+      res.status(200).json({ message: 'Transacción creada correctamente' });
+    } catch (error) {
+      console.error('Error al crear la transacción:', error);
+      res.status(500).json({ error: 'Error al crear la transacción' });
+    }
+  });
+
+  app.get('/ultima-transaccion/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Obtener la última transacción del usuario
+      const transaccionesRef = db.collection('Transaccion')
+        .where('userId', '==', userId)
+        .orderBy('fecha', 'desc')
+        .limit(1);
+  
+      const transaccionesSnapshot = await transaccionesRef.get();
+  
+      if (transaccionesSnapshot.empty) {
+        return res.status(404).json({ error: 'No se encontraron transacciones para el usuario' });
+      }
+  
+      // Obtener los datos de la última transacción
+      const ultimaTransaccion = transaccionesSnapshot.docs[0].data();
+  
+      // Obtener el documento del estacionamiento
+      const estacionamientoDoc = await db.collection('estacionamiento').doc(ultimaTransaccion.estacionamientoId).get();
+      const estacionamientoData = estacionamientoDoc.data();
+  
+      // Combinar los datos de la última transacción y el estacionamiento en la respuesta JSON
+      const respuesta = {
+        ultimaTransaccion: ultimaTransaccion,
+        estacionamiento: estacionamientoData
+      };
+  
+      res.json(respuesta);
+    } catch (error) {
+      console.error('Error al obtener la última transacción:', error);
+      res.status(500).json({ error: 'Error al obtener la última transacción' });
+    }
+  });
+  
+  
   // Endpoint para manejar el resultado de la hoja de pago
 app.post('/payment-sheet-result', async (req, res) => {
   try {
@@ -105,16 +168,16 @@ app.post('/update-parking-space-status/:estacionamientoId', async (req, res) => 
     if (parkingDoc.exists) {
       const parkingData = parkingDoc.data();
 
-      console.log('Datos del documento:', parkingData);
+     
 
       const espacios = parkingData.espacios;
 
-      console.log('Espacios disponibles:', espacios);
+   
 
       // Buscar el primer espacio disponible
       const espacioIndex = espacios.findIndex(espacio => espacio === true);
 
-      console.log('Índice del espacio disponible:', espacioIndex);
+    
 
       if (espacioIndex !== -1) {
         // Crear un nuevo arreglo con los mismos valores
@@ -123,7 +186,7 @@ app.post('/update-parking-space-status/:estacionamientoId', async (req, res) => 
         // Cambiar el valor del espacio a false
         nuevosEspacios[espacioIndex] = false;
 
-        console.log('Espacios actualizados:', nuevosEspacios);
+   
 
         await parkingRef.update({
           espacios: nuevosEspacios

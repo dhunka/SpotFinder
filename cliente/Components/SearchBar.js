@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectOrigin,setOrigin,setDestination } from '../slices/navSlice';
+import { selectOrigin, setOrigin, setDestination } from '../slices/navSlice';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Entypo } from '@expo/vector-icons'; // Importar el ícono de la lupa
 import { GOOGLE_MAPS_APIKEY } from '@env';
+import { useNavigation } from '@react-navigation/native';
+
 const SearchBar = () => {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const origin = useSelector(selectOrigin);
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
+  const handleSearch = (data, details = null) => {
+    setSelectedPlace(details);
+  };
+
+  const handleSearchButtonPress = () => {
+    if (selectedPlace) {
+      dispatch(
+        setOrigin({
+          location: selectedPlace.geometry.location,
+          description: selectedPlace.description,
+        })
+      );
+      dispatch(setDestination(null));
+      navigation.navigate('MapScreen');
+    }
+  };
 
   return (
     <View style={styles.searchBarContainer}>
       <GooglePlacesAutocomplete
         placeholder="Donde estas?"
-        onPress={(data, details = null) => {
-          dispatch(
-            setOrigin({
-              location: details.geometry.location,
-              description: data.description,
-            })
-          );
-          dispatch(setDestination(null));
-        }}
+        onPress={handleSearch}
         fetchDetails={true}
         returnKeyType={'search'}
         enablePoweredByContainer={false}
@@ -31,30 +44,56 @@ const SearchBar = () => {
         }}
         nearbyPlacesAPI="GooglePlacesSearch"
         debounce={400}
+        styles={autoCompleteStyles} // Estilos personalizados para el componente de autocompletar
       />
-  
+      <TouchableOpacity onPress={handleSearchButtonPress} style={styles.searchButton}>
+        <Entypo name="magnifying-glass" size={24} color="black" />
+      </TouchableOpacity>
     </View>
   );
+};
+
+const autoCompleteStyles = {
+  container: {
+    flex: 1,
+  },
+  textInputContainer: {
+    backgroundColor: 'transparent',
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+    paddingHorizontal: 0,
+    alignItems: 'center',
+    marginLeft: 10,
+    flex: 1,
+  },
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    fontSize: 16,
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginLeft: 10,
+  },
+  listView: {
+    position: 'absolute',
+    top: 55,
+    marginHorizontal: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    flex: 1,
+    elevation: 5,
+  },
 };
 
 const styles = StyleSheet.create({
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 10,
   },
-  filterButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  searchButton: {
     marginLeft: 10,
-  },
-  filterMenu: {
-    backgroundColor: 'white',
-    borderRadius: 6,
-    padding: 12,
-    width: 200,
-    marginTop: 60,
-    marginRight: 10,
-    elevation: 5,
   },
 });
 

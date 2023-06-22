@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useNavigation } from '@react-navigation/native';
+import { auth } from '../Components/config';
 import { useStripe } from '@stripe/stripe-react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -23,9 +24,20 @@ const SelectParkingScreen = () => {
   const selectedParkingTime = useSelector(selectSelectedParkingTime);
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [userId, setUserId] = useState(null);
+  const DueñoId= selectedMarker.userId;
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
  
-
-
 
   const handlePaymentMethodSelect = (method) => {
     dispatch(setSelectedPaymentMethod(method));
@@ -67,14 +79,25 @@ const SelectParkingScreen = () => {
 
         if (!error) {
           console.log(selectedMarker.estacionamientoId);
+          console.log(selectedMarker.estacionamientoId,DueñoId,userId);
           const response = await fetch(`${IP}/update-parking-space-status/${selectedMarker.estacionamientoId}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
           });
-          
-         
+          const response1 = await fetch(`${IP}/transacciones`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json', 
+              },
+              body: JSON.stringify({
+                userId: userId,
+                estacionamientoId: selectedMarker.estacionamientoId,
+                DueñoId: DueñoId,
+              }),
+            });
+            
           navigation.navigate('PaymentSuccessfulScreen', { selectedPaymentMethod, selectedParkingTime, price });
         }
 

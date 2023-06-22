@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
+     
       navigation.navigate('HomeScreen');
     } catch (error: any) {
       console.log(error);
@@ -30,7 +30,7 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(response);
+   
 
       const user = response.user;
       const userData = {

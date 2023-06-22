@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
-import SearchBar from './SearchBar';
 import { IP } from '@env';
 
 const Map = () => {
