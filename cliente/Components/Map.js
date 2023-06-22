@@ -58,14 +58,7 @@ const Map = () => {
         style={styles.floatingBar}
       >
         <View style={{ marginLeft: 7 }}>
-          <Image
-            style={{
-              borderRadius: 15,
-              width: 100,
-              height: 100,
-            }}
-            source={selectedMarker.img}
-          />
+      
         </View>
         <View
           style={{
