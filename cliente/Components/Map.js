@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 import { IP } from '@env';
@@ -15,16 +14,17 @@ const Map = () => {
   const [isFloatingBarVisible, setIsFloatingBarVisible] = useState(false);
   const [markersList, setMarkersList] = useState([]);
 
+  const fetchMarkers = async () => {
+    try {
+      const response = await fetch(`${IP}/estacionamientos`);
+      const data = await response.json();
+      setMarkersList(data);
+    } catch (error) {
+      console.error('Error al obtener los marcadores:', error);
+    }
+  };
+  
   useEffect(() => {
-    const fetchMarkers = async () => {
-      try {
-        const response = await axios.get(`${IP}/estacionamientos`);
-        setMarkersList(response.data);
-      } catch (error) {
-        console.error('Error al obtener los marcadores:', error);
-      }
-    };
-
     fetchMarkers();
   }, []);
 
