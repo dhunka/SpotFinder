@@ -136,7 +136,7 @@ export default Map;
 
 const styles = StyleSheet.create({
   floatingBar: {
-    backgroundColor: 'white',
+    backgroundColor: '#2a475e',
     borderRadius: 15,
     padding: 12,
     width: 300,
