@@ -9,27 +9,7 @@ import { IP } from '@env';
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [ultimoEstacionamiento, setUltimoEstacionamiento] = useState(null);
 
-  useEffect(() => {
-    obtenerUltimaTransaccion();
-  }, []);
-  
-  const obtenerUltimaTransaccion = async () => {
-    try {
-      const userId = 'uFUvG4pvQAXztt7Ye9vD17cPExL2';
-      const response = await fetch(`${IP}/ultima-transaccion/${userId}`);
-  
-      if (!response.ok) {
-        throw new Error('Error al obtener la última transacción');
-      }
-  
-      const data = await response.json();
-      setUltimoEstacionamiento(data);
-    } catch (error) {
-      console.error('Error al obtener la última transacción:', error);
-    }
-  };
   
   
 
@@ -41,7 +21,7 @@ const HomeScreen = () => {
         <SearchBar />
       </View>
       <View style={styles.body}>
-        <TouchableOpacity onPress={() => navigation.navigate('MapScreen')} style={[styles.button1, { backgroundColor: '#66c0f4' }]}>
+        <TouchableOpacity onPress={() => navigation.navigate('NewCarScreen')} style={[styles.button1, { backgroundColor: '#66c0f4' }]}>
           <View style={{marginTop:15}}>
             <Image
               style={styles.buttonImage}
@@ -54,7 +34,7 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('MapScreen')}
+          onPress={() => navigation.navigate('ParkingListScreen')}
           style={[styles.button, { backgroundColor: '#66c0f4' }]}
         >
           <View>

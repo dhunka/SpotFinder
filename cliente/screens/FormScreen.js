@@ -17,7 +17,6 @@ export default function App() {
   const [telefono, setTelefono] = useState('');
   const [dimensionesAncho, setDimensionesAncho] = useState('');
   const [dimensionesLargo, setDimensionesLargo] = useState('');
-  const [tarifa, setTarifa] = useState('');
   const [numVehiculos, setNumVehiculos] = useState('');
 
   useEffect(() => {
@@ -39,7 +38,6 @@ export default function App() {
       !telefono ||
       !dimensionesAncho ||
       !dimensionesLargo ||
-      !tarifa ||
       !numVehiculos
     ) {
       alert('Ingrese los datos correctamente');
@@ -58,7 +56,6 @@ export default function App() {
         ancho: dimensionesAncho,
         largo: dimensionesLargo,
       },
-      tarifa: tarifa,
       espacios: camposDisponibles,
     };
 
@@ -141,13 +138,6 @@ export default function App() {
           style={[styles.input, styles.dimensionesInput]}
         />
       </View>
-
-      <TextInput
-        value={tarifa}
-        onChangeText={(text) => setTarifa(text)}
-        placeholder="Tarifa"
-        style={[styles.input, styles.input]}
-      />
 
       <TextInput
         value={numVehiculos}

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../Components/config';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ListaEstacionamientos() {
   const [estacionamientos, setEstacionamientos] = useState([]);
   const [estacionamientoSeleccionado, setEstacionamientoSeleccionado] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     obtenerEstacionamientos();
@@ -45,6 +47,15 @@ export default function ListaEstacionamientos() {
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Lista de Estacionamientos</Text>
+      
+      {/* Botón para ir a FormScreen */}
+      <TouchableOpacity
+        style={styles.boton}
+        onPress={() => navigation.navigate('FormScreen')}
+      >
+        <Text style={styles.botonTexto}>Ir a FormScreen</Text>
+      </TouchableOpacity>
+
       <FlatList
         data={estacionamientos}
         keyExtractor={(item) => item.id}
@@ -111,5 +122,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1b2838',
     marginBottom: 5,
+  },
+  boton: {
+    backgroundColor: '#66c0f4',
+    padding: 10,
+    borderRadius: 4,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  botonTexto: {
+    color: '#1b2838',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
