@@ -13,6 +13,10 @@
     },
     "android": {
       "package": "com.dhunka.SpotFinder"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }

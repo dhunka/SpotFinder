@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, setOrigin, setDestination } from '../slices/navSlice';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
