@@ -5,32 +5,42 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, selectSelectedMarker, setSelectedMarker } from '../slices/navSlice';
 import { useNavigation } from '@react-navigation/native';
 import { IP } from '@env';
+import axios from 'axios';
 
 const Map = () => {
   const navigation = useNavigation();
-  const origin = useSelector(selectOrigin);
+  const origin = useSelector(selectOrigin) || {};
   const dispatch = useDispatch();
-  const selectedMarker = useSelector(selectSelectedMarker);
+  const selectedMarker = useSelector(selectSelectedMarker)||{};
   const [isFloatingBarVisible, setIsFloatingBarVisible] = useState(false);
   const [markersList, setMarkersList] = useState([]);
 
+
+
   const fetchMarkers = async () => {
     try {
-      const response = await fetch(`${IP}/estacionamientos`);
-      const data = await response.json();
+      const response = await axios.get(`${IP}/estacionamientos`);
+      const data = response.data;
       setMarkersList(data);
     } catch (error) {
       console.error('Error al obtener los marcadores:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchMarkers();
   }, []);
 
+  useEffect(() => {
+    console.log('selectedMarker updated:', selectedMarker);
+    console.log('isFloatingBarVisible updated:', isFloatingBarVisible);
+  }, [selectedMarker, isFloatingBarVisible]);
+
   const handleMarkerPress = (marker) => {
     dispatch(setSelectedMarker(marker));
     setIsFloatingBarVisible(true);
+    console.log('Marker pressed:', marker);
+    console.log('isFloatingBarVisible:', true);
   };
 
   const handleFloatingBarPress = () => {
@@ -38,28 +48,30 @@ const Map = () => {
   };
 
   const renderFloatingBar = () => {
-   
-    if (!isFloatingBarVisible) {
+    console.log('renderFloatingBar called');
+    if (!isFloatingBarVisible || !selectedMarker) {
+      console.log('renderFloatingBar returning null');
       return null;
     }
 
-    const espacios = selectedMarker.espacios;
+    console.log('renderFloatingBar rendering floating bar');
+    const espacios = selectedMarker.espacios || {};
     const totalSpots = Object.keys(espacios).length;
     const numTrueSpots = Object.values(espacios).filter(value => value === true).length;
-    const occupancyRatio = numTrueSpots / totalSpots;
-    let textColor = 'green'; // Color predeterminado para todos los spots disponibles
+    const occupancyRatio = totalSpots ? numTrueSpots / totalSpots : 0;
+    let textColor = 'green';
 
     if (occupancyRatio < 0.5) {
-      textColor = 'yellow'; // Cambiar a amarillo si menos de la mitad de los spots están ocupados
+      textColor = 'yellow';
     }
+
     return (
       <TouchableOpacity
         onPress={handleFloatingBarPress}
         style={styles.floatingBar}
+        testID="floating-bar"
       >
-        <View style={{ marginLeft: 7 }}>
-      
-        </View>
+        <View style={{ marginLeft: 7 }} />
         <View
           style={{
             marginLeft: 10,
@@ -75,7 +87,7 @@ const Map = () => {
             <Text style={[styles.spotsText, { color: textColor }]}>
               {numTrueSpots}/{totalSpots} spots
             </Text>
-         </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -108,6 +120,7 @@ const Map = () => {
             title={marker.nombre}
             description={marker.description}
             onPress={() => handleMarkerPress(marker)}
+            testID={`marker-${index}`}
           >
             <MarkerImage />
           </Marker>
@@ -149,7 +162,5 @@ const styles = StyleSheet.create({
   imagen: {
     borderRadius: 15,
   },
-  spotsText: {
-    
-  },
+  spotsText: {},
 });

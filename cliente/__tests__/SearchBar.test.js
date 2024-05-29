@@ -2,8 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-// Ajusta la ruta según tu estructura de proyecto
-import { View, TextInput } from 'react-native';
+
 import SearchBar from '../Components/SearchBar';
 
 
