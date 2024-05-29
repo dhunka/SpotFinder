@@ -46,8 +46,8 @@ const SearchBar = () => {
         debounce={400}
         styles={autoCompleteStyles} // Estilos personalizados para el componente de autocompletar
       />
-      <TouchableOpacity onPress={handleSearchButtonPress} style={styles.searchButton}>
-        <Entypo name="magnifying-glass" size={24} color="black" />
+      <TouchableOpacity  onPress={handleSearchButtonPress} style={styles.searchButton} accessibilityRole="button">
+        <Entypo name="magnifying-glass" size={30} color="black" />
       </TouchableOpacity>
     </View>
   );
